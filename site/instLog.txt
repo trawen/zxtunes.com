@@ -1,0 +1,211 @@
+                     DllMain                       -------------Start AdvancedEntry--------------
+
+
+
+
+
+-------------End AdvancedEntry--------------
+-------------Start EntryPoint0--------------
+-------------Start EntryPoint0 Not n bSilent--------------
+-------------Center EntryPoint0--------------
+8~©-------------Center EntryPoint1--------------
+-------------Strat Is_InstallPragma5--------------
+SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Pragma-------------Start EntryPoint0 bSilent--------------
+-------------End EntryPoint0--------------
+-------------Start EntryPoint1_5--------------
+-------------End EntryPoint1_5--------------
+-------------return 1--------------
+-------------return 1--------------
+-------------Start EntryPoint6--------------
+107F-B473
+107F-B473107F-B473newart-------------End EntryPoint6--------------
+-------------return 1--------------
+-------------Start EntryPoint7---------------
+C:\Program Files\Trident Software\Pragma\
+C:\Documents and Settings\Администратор\Application Data\Trident Software\pragma\saved\
+-------------END EntryPoint7---------------
+-------------return 1--------------
+-------------return 1--------------
+
+-------------Start EntryPoint12--------------
+CreateDialog = 21005E
+GLang = 107F-B473
+GDir = D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5
+Plus = 1
+str = EngRusUkrGerLatFrePol
+Def path pragma = C:\Program Files\Trident Software\Pragma\
+Def path Dic = C:\Program Files\Trident Software\Pragma\Diction\
+
+-------------UpdateReg--------------
+engrusukrgerlatfrepoleng
+Install
+GetLanguageName
+Language1----€>‘|
+GetLanguageName
+rus
+Install
+GetLanguageName
+Language2----eng
+GetLanguageName
+ukr
+Install
+GetLanguageName
+Language3----rus
+GetLanguageName
+ger
+Install
+GetLanguageName
+Language4----ukr
+GetLanguageName
+lat
+Install
+GetLanguageName
+Language5----ger
+GetLanguageName
+fre
+Install
+GetLanguageName
+Language6----lat
+GetLanguageName
+pol
+Install
+GetLanguageName
+Language7----fre
+GetLanguageName
+
+ Education 
+ plus 
+ end 
+ File = diceng.exe  Path =D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\diceng.exe   --  Unzip
+File = dicrus.exe  Path =D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\dicrus.exe   --  Unzip
+File = dicukr.exe  Path =D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\dicukr.exe   --  Unzip
+File = dicger.exe  Path =D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\dicger.exe   --  Unzip
+File = diclat.exe  Path =D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\diclat.exe   --  Unzip
+File = dicfre.exe  Path =D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\dicfre.exe   --  Unzip
+File = dicpol.exe  Path =D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\dicpol.exe   --  Unzip
+Plus = 1
+D:\temp\Pragma_5.0.100.5 Переводчик\Pragma 5\dicplus.exeUnzip
+
+-------------End EntryPoint12--------------
+ WM_CLOSE DialogProcOrder
+-------------Start EntryPoint13--------------
+
+---------------- Not Register ---------------
+C:\Program Files\Trident Software\Pragma\ptsup5.exeC:\Program Files\Trident Software\Pragma\ptbar5.dll
+Load library ptbar.dll
+S_OKEnumRegOptions
+RegDeleteKey
+
+-------------End EntryPoint13--------------
+
+-------------Start EntryPoint13--------------
+EnumRegOptions
+RegDeleteKey
+
+-------------End EntryPoint13--------------
+                     DllMain                                            DllMain                       -------------Start AdvancedEntry--------------
+
+
+
+
+
+-------------End AdvancedEntry--------------
+-------------Start EntryPoint0--------------
+-------------Start EntryPoint0 Not n bSilent--------------
+-------------Center EntryPoint0--------------
+8~©-------------Center EntryPoint1--------------
+-------------Strat Is_InstallPragma5--------------
+SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Pragma-------------Start EntryPoint0 bSilent--------------
+-------------End EntryPoint0--------------
+-------------Start EntryPoint1_5--------------
+-------------End EntryPoint1_5--------------
+-------------return 1--------------
+-------------return 1--------------
+-------------Start EntryPoint6--------------
+107F-B473
+107F-B473107F-B473newart-------------End EntryPoint6--------------
+-------------return 1--------------
+-------------Start EntryPoint7---------------
+C:\Temp\Pragma\
+C:\Documents and Settings\Администратор\Application Data\Trident Software\pragma\saved\
+-------------END EntryPoint7---------------
+-------------return 1--------------
+-------------return 1--------------
+
+-------------Start EntryPoint12--------------
+CreateDialog = 70132
+GLang = 107F-B473
+GDir = C:\Program Files
+Plus = 1
+str = EngRusUkrGerLatFrePol
+Def path pragma = C:\Temp\Pragma\
+Def path Dic = C:\Temp\Pragma\Diction\
+
+-------------UpdateReg--------------
+engrusukrgerlatfrepoleng
+Install
+GetLanguageName
+Language1----€>‘|
+GetLanguageName
+rus
+Install
+GetLanguageName
+Language2----eng
+GetLanguageName
+ukr
+Install
+GetLanguageName
+Language3----rus
+GetLanguageName
+ger
+Install
+GetLanguageName
+Language4----ukr
+GetLanguageName
+lat
+Install
+GetLanguageName
+Language5----ger
+GetLanguageName
+fre
+Install
+GetLanguageName
+Language6----lat
+GetLanguageName
+pol
+Install
+GetLanguageName
+Language7----fre
+GetLanguageName
+
+ Education 
+ plus 
+ end 
+ File = diceng.exe  Path =C:\Program Files\diceng.exe   --  Error
+File = dicrus.exe  Path =C:\Program Files\dicrus.exe   --  Error
+File = dicukr.exe  Path =C:\Program Files\dicukr.exe   --  Error
+File = dicger.exe  Path =C:\Program Files\dicger.exe   --  Error
+File = diclat.exe  Path =C:\Program Files\diclat.exe   --  Error
+File = dicfre.exe  Path =C:\Program Files\dicfre.exe   --  Error
+File = dicpol.exe  Path =C:\Program Files\dicpol.exe   --  Error
+Plus = 1
+C:\Program Files\dicplus.exeError
+
+-------------End EntryPoint12--------------
+ WM_CLOSE DialogProcOrder
+-------------Start EntryPoint13--------------
+
+---------------- Not Register ---------------
+C:\Temp\Pragma\ptsup5.exeC:\Temp\Pragma\ptbar5.dll
+Load library ptbar.dll
+S_OKEnumRegOptions
+RegDeleteKey
+
+-------------End EntryPoint13--------------
+
+-------------Start EntryPoint13--------------
+EnumRegOptions
+RegDeleteKey
+
+-------------End EntryPoint13--------------
+                     DllMain                       

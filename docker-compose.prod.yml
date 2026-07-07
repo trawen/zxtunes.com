@@ -1,0 +1,145 @@
+# zxtunes.com — Production config for VPS (Traefik + hardened)
+# Usage: docker compose -f docker-compose.prod.yml up -d --build
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+networks:
+  frontend:
+    external: true
+    name: traefik_frontend
+  backend:
+    driver: bridge
+    internal: true
+
+volumes:
+  db_data:
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: zxtunes_nginx
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zxtunes.rule=Host(`zxtunes.com`) || Host(`www.zxtunes.com`)"
+      - "traefik.http.routers.zxtunes.entrypoints=websecure"
+      - "traefik.http.routers.zxtunes.tls.certresolver=letsencrypt"
+      - "traefik.http.services.zxtunes.loadbalancer.server.port=80"
+    volumes:
+      - ./conf/nginx-site.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./conf/security-headers.conf:/etc/nginx/security-headers.conf:ro
+      - ./site:/home/zxtunes/web/zxtunes.com/public_html:ro
+      - ./data:/home/zxtunes/web/zxtunes.com/data:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      php:
+        condition: service_healthy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:size=32m,noexec,nosuid,nodev
+      - /var/run:size=1m,noexec,nosuid,nodev
+      - /tmp:size=16m,noexec,nosuid,nodev
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE, CHOWN, SETGID, SETUID]
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
+    networks:
+      - frontend
+      - backend
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpus: 0.5
+    pids_limit: 100
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zxtunes_php
+    env_file: .env
+    expose:
+      - "9000"
+    volumes:
+      - ./site:/home/zxtunes/web/zxtunes.com/public_html:ro
+      - ./data:/home/zxtunes/web/zxtunes.com/data:rw
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"if(false===@fsockopen('localhost',9000)){exit(1);}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /home/zxtunes/tmp:size=64m,uid=33,gid=33,noexec,nosuid,nodev
+      - /tmp:size=16m,noexec,nosuid,nodev
+      - /var/run:size=1m,noexec,nosuid,nodev
+      - /var/log:size=8m,noexec,nosuid,nodev
+    cap_drop: [ALL]
+    cap_add: [SETGID, SETUID, CHOWN, DAC_OVERRIDE]
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
+    networks:
+      - backend
+    mem_limit: 384m
+    memswap_limit: 384m
+    cpus: 1.0
+    pids_limit: 200
+
+  db:
+    image: mysql:8.0
+    container_name: zxtunes_db
+    env_file: .env
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    command: >-
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
+      --innodb-log-file-size=64M
+      --slow-query-log=1
+      --long-query-time=1
+      --skip-name-resolve
+      --local-infile=0
+      --symbolic-links=0
+      --secure-file-priv=/var/lib/mysql-files
+      --log-error-verbosity=2
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid,nodev
+      - /var/run/mysqld:size=1m,noexec,nosuid,nodev
+      - /var/log:size=32m,noexec,nosuid,nodev
+    cap_drop: [ALL]
+    cap_add: [SETGID, SETUID, CHOWN, DAC_OVERRIDE]
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
+    networks:
+      - backend
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 1.0
+    pids_limit: 200

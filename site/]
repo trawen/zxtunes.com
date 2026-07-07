@@ -1,0 +1,161 @@
+<?php
+
+require 'ini.php';
+
+error_reporting(true);
+
+
+$id = intval($_REQUEST['id']);
+$scope = $_REQUEST['scope'];
+
+function get($tag, $value) {
+
+	global $oXMLout;
+
+	if ($value) {$oXMLout->writeElement($tag, $value);}
+
+}
+
+if (!$scope) {
+
+	$z = mysql_query("SELECT COUNT(*) FROM muzx_authors");
+	$authors = mysql_fetch_array($z);
+	$z = mysql_query("SELECT COUNT(*) FROM muzx_songs");
+	$songs = mysql_fetch_array($z);
+	
+	echo $songs;
+	
+	$dom = new DOMDocument('1.0', 'utf-8');
+
+	$root = $dom->createElement('zxtunes');
+	$root->setAttribute('version','1.0');
+
+	$info = $dom->createElement('info');
+	$root->appendChild($info);
+
+	$node = $dom->createElement('minVersion');
+	$text = $dom->createTextNode('1.0');
+	$node->appendChild($text);
+	$info->appendChild($node);
+
+	$node = $dom->createElement('authors');
+	$text = $dom->createTextNode($authors);
+	$node->appendChild($text);
+	$info->appendChild($node);
+
+	$node = $dom->createElement('tracks');
+	$text = $dom->createTextNode($songs);
+	$node->appendChild($text);
+	$info->appendChild($node);
+
+	$dom->appendChild($root);
+
+	echo $dom->saveXML();
+
+}
+
+exit;
+
+
+if ($g == "author_info") {
+
+	$z = mysql_query("SELECT * FROM muzx_authors WHERE id='$id'");
+	$t = mysql_fetch_array($z);
+	$z = mysql_query("SELECT * FROM group_authors, groups WHERE group_authors.author_id='$id' AND groups.id = group_authors.group_id"); 
+	while ($x = mysql_fetch_array($z)) {
+
+		if ($f) {$f = $f." OR ";}
+		$f = $f."group_authors.group_id='".$x['id']."'";
+		if ($g) {$g = $g.", ";}
+		$g = $g.$x['name'];
+
+	}
+
+	$z = mysql_query("SELECT muzx_authors.nickname, muzx_authors.id FROM group_authors, muzx_authors WHERE ($f) AND muzx_authors.id = group_authors.author_id" );
+	while ($s = mysql_fetch_array($z)) {
+		
+		if ($s['id'] != $id) {
+		
+			if ($so) {$so = $so.", ";}
+			$so = $so.$s['nickname'];
+		
+		}
+
+	}
+
+	$oXMLout = new XMLWriter();
+	$oXMLout->openMemory();
+	$oXMLout->startElement("author");
+	get("id", $t['id']);
+	get("nick", $t['nickname']);
+	get("also", $t['also']);
+	get("first_name_en", $t['first_name_en']);
+	get("last_name_en", $t['last_name_en']);
+	get("spec", $t['spec']);
+	get("city_en", $t['city_en']);
+	get("country_en", $t['country_en']);
+	get("activity_from", $t['years_from']);
+	get("activity_to", $t['years_to']);
+	get("site", $t['site']);
+	get("icq", $t['icq']);
+	get("email", $t['email']);
+	get("tracks", $t['tracks']);
+	get("photo", $t['photo']);
+	get("interview", $t['interview']);
+	get("views", $t['views']);
+	get("update_date", $t['update_date']);
+	get("dead_date", $t['dead']);
+	get("so_members", $so);
+	get("groups", $g);
+	$oXMLout->endElement();
+	print $oXMLout->outputMemory();
+
+}
+elseif ($g == "author_songs") {
+
+	$oXMLout = new XMLWriter();
+	$oXMLout->openMemory();
+	$oXMLout->startElement("songs");
+	
+	$z = mysql_query("SELECT * FROM muzx_songs_authors, muzx_songs WHERE author_id='$id' AND id=song_id" );
+	while ($t = mysql_fetch_array($z)) {
+		
+		get("id", $t['id']);
+		get("filename", $t['filename']);
+		get("name", $t['name']);
+		get("year", $t['year']);
+		get("downloads", $t['downloads']);
+		get("time", $t['time']);
+		get("type", $t['type']);
+		get("update_date", $t['last_update']);
+	
+	}
+	
+	$oXMLout->endElement();
+	print $oXMLout->outputMemory();
+	
+}
+elseif ($g == "authors_list") {
+
+	$oXMLout = new XMLWriter();
+	$oXMLout->openMemory();
+	$oXMLout->startElement("authors_list");
+	
+	$z = mysql_query("SELECT id,nickname,first_name_en,last_name_en,years_from,years_to FROM muzx_authors" );
+	while ($t = mysql_fetch_array($z)) {
+		
+		get("id", $t['id']);
+		get("nick", $t['nick']);
+		get("first_name", $t['first_name_en']);
+		get("last_name", $t['last_name_en']);
+		get("activity_from", $t['years_from']);
+		get("activity_to", $t['years_to']);
+			
+	}
+	
+	$oXMLout->endElement();
+	print $oXMLout->outputMemory();
+
+}
+
+?>

@@ -1,0 +1,14 @@
+# Media and user-uploaded content (excluded from repo)
+site/remix_mp3/
+site/tunes/
+site/tunes_zip/
+site/podcast/
+site/files/
+site/fym2/
+
+# Secrets and runtime data
+.env
+data/
+
+# Temp files
+site/temp/

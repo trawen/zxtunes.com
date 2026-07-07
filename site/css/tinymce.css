@@ -1,0 +1,8 @@
+@charset "iso-8859-1";
+/* GLOBAL */
+.mceContentBody 
+{
+	font-size: 12px;
+	font-family: tahoma, sans-serif;
+	padding: 10px;
+}

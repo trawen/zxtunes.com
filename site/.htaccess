@@ -1,0 +1,9 @@
+php_flag display_errors on
+DirectoryIndex authors_list.php
+Options -Indexes
+RewriteEngine on
+RewriteRule ^([0-9]+)/([a-z0-9]+)/?$ author.php?id=$1
+
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
