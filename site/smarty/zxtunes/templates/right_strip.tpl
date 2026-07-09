@@ -28,7 +28,7 @@
 <LI>
 {section name=n loop=$best}
 
-<a class=mm href="author.php?id={$best[n].id_author}">{$best[n].nickname}</a> - <a class='m' href='downloads.php?id={$best[n].id}' 
+<a class=mm href="{$best[n].id_author|aurl}">{$best[n].nickname}</a> - <a class='m' href='/downloads.php?id={$best[n].id}' 
 title="{if $language eq 'rus'}Скачать {else}Download {/if} {$best[n].filename}">{$best[n].filename}</a><br>
 
 {/section}
@@ -74,36 +74,6 @@ title="{if $language eq 'rus'}Скачать {else}Download {/if} {$best[n].file
 
 
 
-<div class="menu_box">
-<div class="menu_title"><span class="menu_title"><img src="/css/search_ico.png" style="opacity:.5"> &nbsp;{if $language eq 'rus'}ПОИСК{else}SEARCH{/if}</span></div>
-
-
-<div style="padding-top: 4px">
-
-<UL class=forum><LI>
-
-<form method="POST" action="/search.php">
-<input type="hidden" name="_csrf" value="{$csrf_token}">
-<input style="border: 1px solid #eee; width: 90px; height: 20px" type=text style="font-size: 9pt;" name=srtext>
-<select name='srtype' style="border: 1px solid #eee; width: 60px; height: 20px; font-size: 8pt;">
-<option value='authors'>{if $language eq 'rus'}Музыканты{else}Musicians{/if}</option>
-<option value='tunes'>{if $language eq 'rus'}Музыка{else}Tunes{/if}</option>
-<option value='software'>{if $language eq 'rus'}Софт{else}Software{/if}</option>
-</select>
-<input style="font: bold 8pt Arial; width: 28px; height: 20px; background-color: #EEE; border: none" type="submit" name="submit" value="OK">
-<input type="hidden" name="mode" value="search">
-</form>
-
-</LI></UL>
-
-
-
-
-</div>
-</div>
-
-
-
 <div class="brk"></div>
 
 <!-- <a href="http://bit.ly/2vmID00"><img src="/images/cc17.png"></a> -->
@@ -122,43 +92,43 @@ title="{if $language eq 'rus'}Скачать {else}Download {/if} {$best[n].file
 
 {if $language eq 'rus'}
 {if $upd[n].event eq 0}<img src="/css/musician.png" style="opacity:.5"> 
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> обновил профайл 
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> обновил профайл 
 
 {elseif $upd[n].event eq 1}<img src="/css/musician.png" style="opacity:.5"> 
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> загрузил фото
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> загрузил фото
 
 {elseif $upd[n].event eq 3}<img src="/css/musician.png" style="opacity:.5"> 
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> обновил фото
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> обновил фото
 
 {elseif $upd[n].event eq 4}<img src="/css/musician.png" style="opacity:.5"> 
-<b>{$upd[n].misc}</b> перемещен в <A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A>
+<b>{$upd[n].misc}</b> перемещен в <A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A>
 
 {elseif $upd[n].event eq 5}<img src="/css/musician.png" style="opacity:.5"> 
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> добавил интервью
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> добавил интервью
 
 {elseif $upd[n].event eq 6}<img src="/css/musician.png" style="opacity:.5"> 
-Новый автор - <A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A>!
+Новый автор - <A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A>!
 {/if}
 
 
 {else}
 {if $upd[n].event eq 0}
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A>  profile updated 
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A>  profile updated 
 
 {elseif $upd[n].event eq 1}
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> uploaded photo
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> uploaded photo
 
 {elseif $upd[n].event eq 3}
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> photo updated
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> photo updated
 
 {elseif $upd[n].event eq 4}
-<b>{$upd[n].misc}</b> removed to <A class=m href="/author.php?id={$gbs[n].author_id}">{$upd[n].nickname}</A>
+<b>{$upd[n].misc}</b> removed to <A class=m href="{$gbs[n].author_id|aurl}">{$upd[n].nickname}</A>
 
 {elseif $upd[n].event eq 5}
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> added interview
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> added interview
 
 {elseif $upd[n].event eq 6}
-<A class=m href="/author.php?id={$upd[n].id}">{$upd[n].nickname}</A> a new author!
+<A class=m href="{$upd[n].id|aurl}">{$upd[n].nickname}</A> a new author!
 {/if}
 
 
@@ -183,7 +153,7 @@ title="{if $language eq 'rus'}Скачать {else}Download {/if} {$best[n].file
 <UL class=forum><LI style="line-height: 16px">
 {section name=n loop=$bests}
 <img src="/css/musician.png" style="opacity:.5"> 
-<A class=m href="/author.php?id={$bests[n].id}">{$bests[n].nickname}</A>{$bests[n].z}
+<A class=m href="{$bests[n].id|aurl}">{$bests[n].nickname}</A>{$bests[n].z}
 {/section}
 </LI></UL>
 
@@ -206,7 +176,7 @@ title="{if $language eq 'rus'}Скачать {else}Download {/if} {$best[n].file
 <UL class=forum><LI style="line-height: 16px">
 {section name=n loop=$gbs}
 <img src="/css/listener.png" style="opacity:.5"> 
-<A class=m href="/author.php?id={$gbs[n].author_id}&md=4">{$gbs[n].user_name}:</A> 
+<A class=m href="{$gbs[n].author_id|aurl}?md=4">{$gbs[n].user_name}:</A> 
 {$gbs[n].message} <SPAN class=d>{$gbs[n].update}</SPAN> 
 {/section}
 </LI></UL>

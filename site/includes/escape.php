@@ -5,6 +5,11 @@ function h(?string $value): string
     return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+function decode_text(?string $value): string
+{
+    return html_entity_decode((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
 /** Highlight search term in escaped HTML. */
 function highlight_search(string $text, string $term): string
 {

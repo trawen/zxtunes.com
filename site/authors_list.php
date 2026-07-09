@@ -82,13 +82,15 @@ $smarty->assign('mmenu',
          );
 
 $tb[0]="ник";
-$tb[1]="имя";
-$tb[2]="фамилия";
-$tb[3]="группа";
-$tb[4]="треки";
-$tb[5]="активность ";
-$tb[6]="город";
-$tb[7]="страна";
+$tb[1]="группа";
+$tb[2]="страна";
+$tb[3]="город";
+$tb[4]="активность ";
+$tb[5]="треки";
+$tb[6]="интервью";
+$tb[7]="фото";
+$tb[8]="контакты";
+$tb[9]="просмотры";
 
 $au['nickname']="никам";
 $au['first_name']="именам";
@@ -134,13 +136,15 @@ $smarty->assign('mmenu',
          );
 		 
 $tb[0]="nickname";
-$tb[1]="fr. name";
-$tb[2]="ls. name";
-$tb[3]="group";
-$tb[4]="tunes";
-$tb[5]="activity";
-$tb[6]="city";
-$tb[7]="country";
+$tb[1]="group";
+$tb[2]="country";
+$tb[3]="city";
+$tb[4]="activity";
+$tb[5]="tunes";
+$tb[6]="interview";
+$tb[7]="photo";
+$tb[8]="contacts";
+$tb[9]="views";
 
 $au['nickname']="nicknames";
 $au['first_name']="first names";
@@ -206,7 +210,11 @@ $smarty->compile_check = true;
 
 $ord = zxtunes_author_list_order($order, $lang);
 
-$zapros0=mysqli_query($db,"SELECT DISTINCT LEFT($ord, 1) AS letter FROM muzx_authors ORDER BY letter");
+if ($order === 'group_name') {
+    $zapros0 = mysqli_query($db, 'SELECT DISTINCT UPPER(LEFT(g.name, 1)) AS letter FROM group_authors ga JOIN `groups` g ON g.id = ga.group_id ORDER BY letter');
+} else {
+    $zapros0 = mysqli_query($db, "SELECT DISTINCT LEFT($ord, 1) AS letter FROM muzx_authors ORDER BY letter");
+}
 if (!$zapros0) {echo mysql_error();}
 else { $n=0; $l=0;
 
@@ -241,26 +249,33 @@ mysqli_free_result($zapros2);
 
 
 
-if (!$sr and $letter=="ALL" or $order=="years_from" or $order=="num_tracks") {$like="";}
-elseif ($letter=="123") {$like="WHERE ".$order." REGEXP '^[0-9]'";}
+if ($order === 'group_name') {
+    $group_clause = zxtunes_authors_group_exists_clause($letter, $sr ?: null, $db);
+    $like = $group_clause ? 'WHERE ' . $group_clause : '';
+    $from_table = 'muzx_authors a';
+    $order_by = zxtunes_authors_group_order_sql($up);
+} elseif (!$sr and $letter=="ALL" or $order=="years_from" or $order=="num_tracks") {$like=""; $from_table = 'muzx_authors'; $order_by = "$ord $up";}
+elseif ($letter=="123") {$like="WHERE ".$order." REGEXP '^[0-9]'"; $from_table = 'muzx_authors'; $order_by = "$ord $up";}
 elseif (!$sr) {
 	$letter_esc = mysqli_real_escape_string($db, $letter);
-	$like="WHERE ".$ord." LIKE '".$letter_esc."%'";
+	$like="WHERE ".$ord." LIKE '".$letter_esc."%'"; $from_table = 'muzx_authors'; $order_by = "$ord $up";
 }
 else {
 	$sr_esc = mysqli_real_escape_string($db, $sr);
 	$like="WHERE ".$ord." LIKE '".$sr_esc."'";
 	$ord.=", nickname";
+	$from_table = 'muzx_authors';
+	$order_by = "$ord $up";
 }
 
 
 
 
-$zapros = mysqli_query($db,"SELECT * FROM muzx_authors $like ORDER BY $ord $up ");
+$zapros = mysqli_query($db,"SELECT * FROM $from_table $like ORDER BY $order_by ");
 if (!$zapros) {echo mysql_error();}
 else { $kl = mysqli_num_rows($zapros);  mysqli_free_result($zapros);}
 
-$zapros = mysqli_query($db,"SELECT * FROM muzx_authors $like ORDER BY $ord $up LIMIT $fr2, $lm ");
+$zapros = mysqli_query($db,"SELECT * FROM $from_table $like ORDER BY $order_by LIMIT $fr2, $lm ");
 if (!$zapros) {echo mysql_error();}
 else { $kl5 = mysqli_num_rows($zapros);  mysqli_free_result($zapros);}
 
@@ -288,7 +303,7 @@ $smarty->assign('pages', $pages);
 
 
 
-$zapros = mysqli_query($db,"SELECT * FROM muzx_authors $like ORDER BY $ord $up LIMIT $fr2, $lm");
+$zapros = mysqli_query($db,"SELECT * FROM $from_table $like ORDER BY $order_by LIMIT $fr2, $lm");
 
 
 
@@ -296,62 +311,55 @@ $tb_title[0]['link']="<a class='mb' href='?letter=".$letter."&order=nickname&lm=
 if ($order=="nickname" and $up=="ASC") {$tb_title[0]['link'].= "DESC'>$tb[0]</a> <b>&#62</b>";} elseif ($order=="nickname" and $up=="DESC") {$tb_title[0]['link'].= "ASC'>$tb[0]</a> <b>&#60</b>";} else {$tb_title[0]['link'].= "ASC'>$tb[0]</a>";}
 
 
-$tb_title[1]['link']= "<a class='mb' href='?letter=".$letter."&order=first_name&lm=".$lm."&fr=1&up=";
-if ($order=="first_name" and $up=="ASC") {$tb_title[1]['link'].= "DESC'>$tb[1]</a> <b>&#62</b>";} elseif ($order=="first_name" and $up=="DESC") {$tb_title[1]['link'].= "ASC'>$tb[1]</a> <b>&#60</b>";} else {$tb_title[1]['link'].= "ASC'>$tb[1]</a>";}
+$tb_title[1]['link']= '';
+if ($order=="group_name" and $up=="ASC" and !$sr) {$tb_title[1]['link']= "<a class='mb' href='?letter=".$letter."&order=group_name&lm=".$lm."&fr=1&up=DESC'>$tb[1]</a> <b>&#62</b>";} 
+elseif ($order=="group_name" and $up=="DESC" and !$sr) {$tb_title[1]['link']= "<a class='mb' href='?letter=".$letter."&order=group_name&lm=".$lm."&fr=1&up=ASC'>$tb[1]</a> <b>&#60</b>";} 
+elseif ($order=="group_name" and $sr) {$tb_title[1]['link']= "<b>$tb[1]</b>: ".$sr." ";} 
+else {$tb_title[1]['link']= "<a class='mb' href='?letter=".$letter."&order=group_name&lm=".$lm."&fr=1&up=ASC'>$tb[1]</a>";}
 
 
-$tb_title[2]['link']="<a class='mb' href='?letter=".$letter."&order=last_name&lm=".$lm."&fr=1&up=";
-if ($order=="last_name" and $up=="ASC") {$tb_title[2]['link'].= "DESC'>$tb[2]</a> <b>&#62</b>";} elseif ($order=="last_name" and $up=="DESC") {$tb_title[2]['link'].= "ASC'>$tb[2]</a> <b>&#60</b>";} else {$tb_title[2]['link'].= "ASC'>$tb[2]</a>";}
+if ($order=="country" and $up=="ASC" and !$sr) {$tb_title[2]['link']= "<a class='mb' href='?letter=".$letter."&order=country&lm=".$lm."&fr=1&up=DESC'>$tb[2]</a> <b>&#62</b>";} 
+elseif ($order=="country" and $up=="DESC" and !$sr) {$tb_title[2]['link']= "<a class='mb' href='?letter=".$letter."&order=country&lm=".$lm."&fr=1&up=ASC'>$tb[2]</a> <b>&#60</b>";} 
+elseif ($order=="country" and $sr) {$tb_title[2]['link']= "<b>$tb[2]</b>: ".$sr." ";} 
+else {$tb_title[2]['link']= "<a class='mb' href='?letter=".$letter."&order=country&lm=".$lm."&fr=1&up=ASC'>$tb[2]</a>";}
 
 
-if ($order=="group_name" and $up=="ASC" and !$sr) {$tb_title[3]['link'].= "<a class='mb' href='?letter=".$letter."&order=group_name&lm=".$lm."&fr=1&up=DESC'>$tb[3]</a> <b>&#62</b>";} 
-elseif ($order=="group_name" and $up=="DESC" and !$sr) {$tb_title[3]['link'].= "<a class='mb' href='?letter=".$letter."&order=group_name&lm=".$lm."&fr=1&up=ASC'>$tb[3]</a> <b>&#60</b>";} 
-elseif ($order=="group_name" and $sr) {$tb_title[3]['link'].= "<b>$tb[3]</b>: ".$sr." ";} 
-else {$tb_title[3]['link'].= "<a class='mb' href='?letter=".$letter."&order=group_name&lm=".$lm."&fr=1&up=ASC'>$tb[3]</a>";}
+if ($order=="city" and $up=="ASC" and !$sr) {$tb_title[3]['link']= "<a class='mb' href='?letter=".$letter."&order=city&lm=".$lm."&fr=1&up=DESC'>$tb[3]</a> <b>&#62</b>";} 
+elseif ($order=="city" and $up=="DESC" and !$sr) {$tb_title[3]['link']= "<a class='mb' href='?letter=".$letter."&order=city&lm=".$lm."&fr=1&up=ASC'>$tb[3]</a> <b>&#60</b>";} 
+elseif ($order=="city" and $sr) {$tb_title[3]['link']= "<b>$tb[3]</b>: ".$sr." ";} 
+else {$tb_title[3]['link']= "<a class='mb' href='?letter=".$letter."&order=city&lm=".$lm."&fr=1&up=ASC'>$tb[3]</a>";}
 
 
-$tb_title[4]['link']= "<a class='mb' href='?letter=".$letter."&order=num_tracks&lm=".$lm."&fr=1&up=";
-if ($order=="num_tracks" and $up=="ASC") {$tb_title[4]['link'].= "DESC'>$tb[4]</a> <b>&#62</b>";} elseif ($order=="num_tracks" and $up=="DESC") {$tb_title[4]['link'].= "ASC'>$tb[4]</a> <b>&#60</b>";} else {$tb_title[4]['link'].= "ASC'>$tb[4]</a>";}
+$tb_title[4]['link']= "<a class='mb' href='?letter=".$letter."&order=years_from&lm=".$lm."&fr=1&up=";
+if ($order=="years_from" and $up=="ASC") {$tb_title[4]['link'].= "DESC'>$tb[4]</a> <b>&#62</b>";} elseif ($order=="years_from" and $up=="DESC") {$tb_title[4]['link'].= "ASC'>$tb[4]</a> <b>&#60</b>";} else {$tb_title[4]['link'].= "ASC'>$tb[4]</a>";}
 
 
-$tb_title[5]['link']= "<a class='mb' href='?letter=".$letter."&order=years_from&lm=".$lm."&fr=1&up=";
-if ($order=="years_from" and $up=="ASC") {$tb_title[5]['link'].= "DESC'>$tb[5]</a> <b>&#62</b>";} elseif ($order=="years_from" and $up=="DESC") {$tb_title[5]['link'].= "ASC'>$tb[5]</a> <b>&#60</b>";} else {$tb_title[5]['link'].= "ASC'>$tb[5]</a>";}
+$tb_title[5]['link']= "<a class='mb' href='?letter=".$letter."&order=num_tracks&lm=".$lm."&fr=1&up=";
+if ($order=="num_tracks" and $up=="ASC") {$tb_title[5]['link'].= "DESC'>$tb[5]</a> <b>&#62</b>";} elseif ($order=="num_tracks" and $up=="DESC") {$tb_title[5]['link'].= "ASC'>$tb[5]</a> <b>&#60</b>";} else {$tb_title[5]['link'].= "ASC'>$tb[5]</a>";}
 
 
-if ($order=="city" and $up=="ASC" and !$sr) {$tb_title[6]['link']= "<a class='mb' href='?letter=".$letter."&order=city&lm=".$lm."&fr=1&up=DESC'>$tb[6]</a> <b>&#62</b>";} 
-elseif ($order=="city" and $up=="DESC" and !$sr) {$tb_title[6]['link'].= "<a class='mb' href='?letter=".$letter."&order=city&lm=".$lm."&fr=1&up=ASC'>$tb[6]</a> <b>&#60</b>";} 
-elseif ($order=="city" and $sr) {$tb_title[6]['link'].= "<b>$tb[6]</b>: ".$sr." ";} 
-else {$tb_title[6]['link'].= "<a class='mb' href='?letter=".$letter."&order=city&lm=".$lm."&fr=1&up=ASC'>$tb[6]</a>";}
+if ($order=="interview" and $up=="ASC" and !$sr) {$tb_title[6]['link']= "<a class='mb' href='?order=interview&lm=".$lm."&fr=1&up=DESC'>$tb[6]</a> <b>&#62</b>";} 
+elseif ($order=="interview" and $up=="DESC" and !$sr) {$tb_title[6]['link']= "<a class='mb' href='?order=interview&lm=".$lm."&fr=1&up=ASC'>$tb[6]</a> <b>&#60</b>";} 
+elseif ($order=="interview" and $sr) {$tb_title[6]['link']= "<b>$tb[6]</b>: ".$sr." ";} 
+else {$tb_title[6]['link']="<a class='mb' href='?order=interview&lm=".$lm."&fr=1&up=DESC'>$tb[6]</a>";}
 
 
-if ($order=="country" and $up=="ASC" and !$sr) {$tb_title[7]['link']= "<a class='mb' href='?letter=".$letter."&order=country&lm=".$lm."&fr=1&up=DESC'>$tb[7]</a> <b>&#62</b>";} 
-elseif ($order=="country" and $up=="DESC" and !$sr) {$tb_title[7]['link'].= "<a class='mb' href='?letter=".$letter."&order=country&lm=".$lm."&fr=1&up=ASC'>$tb[7]</a> <b>&#60</b>";} 
-elseif ($order=="country" and $sr) {$tb_title[7]['link'].= "<b>$tb[7]</b>: ".$sr." ";} 
-else {$tb_title[7]['link'].= "<a class='mb' href='?letter=".$letter."&order=country&lm=".$lm."&fr=1&up=ASC'>$tb[7]</a>";}
+if ($order=="photo" and $up=="ASC" and !$sr) {$tb_title[7]['link']= "<a class='mb' href='?order=photo&lm=".$lm."&fr=1&up=DESC'>$tb[7]</a> <b>&#62</b>";} 
+elseif ($order=="photo" and $up=="DESC" and !$sr) {$tb_title[7]['link']= "<a class='mb' href='?order=photo&lm=".$lm."&fr=1&up=ASC'>$tb[7]</a> <b>&#60</b>";} 
+elseif ($order=="photo" and $sr) {$tb_title[7]['link']= "<b>$tb[7]</b>: ".$sr." ";} 
+else {$tb_title[7]['link']= "<a class='mb' href='?order=photo&lm=".$lm."&fr=1&up=DESC'>$tb[7]</a>";}
 
 
-if ($order=="interview" and $up=="ASC" and !$sr) {$tb_title[8]['link']= "<a class='mb' href='?order=interview&lm=".$lm."&fr=1&up=DESC'><img src='images/interview.png' border=0 title='interview with author'></a> <b>&#60</b>";} 
-elseif ($order=="interview" and $up=="DESC" and !$sr) {$tb_title[8]['link'].= "<a class='mb' href='?order=interview&lm=".$lm."&fr=1&up=ASC'><img src='images/interview.png' border=0 title='interview with author'></a> <b>&#62</b>";} 
-elseif ($order=="interview" and $sr) {$tb_title[8]['link'].= "interview: ".$sr." ";} 
-else {$tb_title[8]['link'].="<a class='mb' href='?order=interview&lm=".$lm."&fr=1&up=DESC'><img src='images/interview.png' border=0 title='interview with author'></a>";}
+if ($order=="contact" and $up=="ASC" and !$sr) {$tb_title[8]['link']= "<a class='mb' href='?order=contact&lm=".$lm."&fr=1&up=DESC'>$tb[8]</a> <b>&#62</b>";} 
+elseif ($order=="contact" and $up=="DESC" and !$sr) {$tb_title[8]['link']= "<a class='mb' href='?order=contact&lm=".$lm."&fr=1&up=ASC'>$tb[8]</a> <b>&#60</b>";} 
+elseif ($order=="contact" and $sr) {$tb_title[8]['link']= "<b>$tb[8]</b>: ".$sr." ";} 
+else {$tb_title[8]['link']= "<a class='mb' href='?order=contact&lm=".$lm."&fr=1&up=DESC'>$tb[8]</a>";}
 
 
-if ($order=="photo" and $up=="ASC" and !$sr) {$tb_title[9]['link']= "<a class='mb' href='?order=photo&lm=".$lm."&fr=1&up=DESC'><img src='images/photo.png' border=0 title='author photo'></a> <b>&#60</b>";} 
-elseif ($order=="photo" and $up=="DESC" and !$sr) {$tb_title[9]['link'].= "<a class='mb' href='?order=photo&lm=".$lm."&fr=1&up=ASC'><img src='images/photo.png' border=0 title='author photo'></a> <b>&#62</b>";} 
-elseif ($order=="photo" and $sr) {$tb_title[9]['link'].= "photo: ".$sr." ";} 
-else {$tb_title[9]['link'].= "<a class='mb' href='?order=photo&lm=".$lm."&fr=1&up=DESC'><img src='images/photo.png' border=0 title='author photo'></a>";}
-
-
-if ($order=="contact" and $up=="ASC" and !$sr) {$tb_title[10]['link']= "<a class='mb' href='?order=contact&lm=".$lm."&fr=1&up=DESC'><img src='images/contact.png' border=0 title='contacts'></a> <b>&#60</b>";} 
-elseif ($order=="contact" and $up=="DESC" and !$sr) {$tb_title[10]['link'].= "<a class='mb' href='?order=contact&lm=".$lm."&fr=1&up=ASC'><img src='images/contact.png' border=0 title='contacts'></a> <b>&#62</b>";} 
-elseif ($order=="contact" and $sr) {$tb_title[10]['link'].= "contact: ".$sr." ";} 
-else {$tb_title[10]['link'].= "<a class='mb' href='?order=contact&lm=".$lm."&fr=1&up=DESC'><img src='images/contact.png' border=0 title='contacts'></a>";}
-
-
-if ($order=="views" and $up=="ASC" and !$sr) {$tb_title[11]['link']= "<a class='mb' href='?order=views&lm=".$lm."&fr=1&up=DESC'><img src='images/views.png' border=0 title='profile views'></a> <b>&#62</b>";} 
-elseif ($order=="views" and $up=="DESC" and !$sr) {$tb_title[11]['link'].= "<a class='mb' href='?order=views&lm=".$lm."&fr=1&up=ASC'><img src='images/views.png' border=0 title='profile views'></a> <b>&#60</b>";} 
-elseif ($order=="views" and $sr) {$tb_title[11]['link'].= "views: ".$sr." ";} 
-else {$tb_title[11]['link'].= "<a class='mb' href='?order=views&lm=".$lm."&fr=1&up=DESC'><img src='images/views.png' border=0 title='profile views'></a>";}
+if ($order=="views" and $up=="ASC" and !$sr) {$tb_title[9]['link']= "<a class='mb' href='?order=views&lm=".$lm."&fr=1&up=DESC'>$tb[9]</a> <b>&#62</b>";} 
+elseif ($order=="views" and $up=="DESC" and !$sr) {$tb_title[9]['link']= "<a class='mb' href='?order=views&lm=".$lm."&fr=1&up=ASC'>$tb[9]</a> <b>&#60</b>";} 
+elseif ($order=="views" and $sr) {$tb_title[9]['link']= "<b>$tb[9]</b>: ".$sr." ";} 
+else {$tb_title[9]['link']= "<a class='mb' href='?order=views&lm=".$lm."&fr=1&up=DESC'>$tb[9]</a>";}
 
 $smarty->assign('tb_title', $tb_title);
 
@@ -363,7 +371,13 @@ if (!$zapros)
 	echo mysql_error();
 else
 {   $n=0;
-	while ($row1 = mysqli_fetch_array($zapros))
+	$rows = [];
+	while ($row1 = mysqli_fetch_array($zapros)) {
+		$rows[] = $row1;
+	}
+	$groups_map = zxtunes_author_groups_for_ids(array_column($rows, 'id'));
+
+	foreach ($rows as $row1)
 	{
 	    
 		$y=$row1['years_from']."-".$row1['years_to'];
@@ -374,43 +388,56 @@ else
 		for ($i = 0; $i < 9; $i++) {
 		if (!$row1[$i]) {$row1[$i]="—";}
 		}
-		if (!$row1['first_name'.$lang]) {$row1['first_name'.$lang]="—";}
-		if (!$row1['last_name'.$lang]) {$row1['last_name'.$lang]="—";}
 		if (!$row1['num_tracks']) {$row1['num_tracks']="0";}
 
+		$first_name = trim((string) ($row1['first_name' . $lang] ?? ''));
+		$last_name = trim((string) ($row1['last_name' . $lang] ?? ''));
+		$real_name = trim($first_name . ($first_name && $last_name ? ' ' : '') . $last_name);
+
 		
-		$gr=$row1['group_name'];
+		$gr='';
+		$author_groups = $groups_map[(int) $row1['id']] ?? [];
+		foreach ($author_groups as $group_row) {
+			$name = $group_row['name'];
+			$label = h($name);
+			if ($group_row['status'] & 2) {
+				$label = '<del>' . $label . '</del>';
+			}
+			if ($sr and $order=="group_name") {
+				$gr .= ($gr ? ', ' : '') . $label;
+			} else {
+				$gr .= ($gr ? ', ' : '') . "<a class='mm' href='?letter=".$letter."&order=group_name&up=ASC&sr=".rawurlencode($name)."'>".$label."</a>";
+			}
+		}
 		$ct=$row1['city'.$lang];
 	
 	   
 	
 	
-		$tbtx[$n][0]="<a class='m' href='author.php?id=".$row1['id']."'>".$row1['nickname']."</a>";
-		$tbtx[$n][1]= $row1['first_name'.$lang];
-		$tbtx[$n][2]= $row1['last_name'.$lang];
-		
-		if ($sr and $order=="group_name") {$tbtx[$n][3]= $gr;} 
-		else {if ($row1['group_name']) {$tbtx[$n][3]= "<a class='mm' href='?letter=".$letter."&order=group_name&up=ASC&sr=".$row1['group_name']."'>".$gr."</a>";}
-		    else {$tbtx[$n][3]="—";}
+		$nick = "<a class='m' href='".h(zxtunes_author_url($row1))."'>".h($row1['nickname'])."</a>";
+		if ($real_name !== '') {
+			$nick .= ' <span class="authors-nick__real">(' . h($real_name) . ')</span>';
 		}
-	
-		
-		$tbtx[$n][4]= $row1['num_tracks'];
-		$tbtx[$n][5]= $y;
-		if ($sr and $order=="city") {$tbtx[$n][6]= $ct;} 
-		else {if ($row1['city'.$lang]) {$tbtx[$n][6]= "<a class='mm' href='?letter=".$letter."&order=city&up=ASC&sr=".$row1['city'.$lang]."'>".$ct;}
-		     else {$tbtx[$n][6]="—";}
+		$tbtx[$n][0] = $nick;
+		$tbtx[$n][1]= $gr ?: '—';
+
+		if ($sr and $order=="country") {$tbtx[$n][2]= $row1['country'.$lang];} 
+		else {if ($row1['country'.$lang]) {$tbtx[$n][2]= "<a class='mm' href='?letter=".$letter."&order=country&up=ASC&sr=".$row1['country'.$lang]."'>".$row1['country'.$lang]."</a>";}
+		     else {$tbtx[$n][2]="—";}
 		}
-		
-		if ($sr and $order=="country") {$tbtx[$n][7]= $row1['country'.$lang];} 
-		else {if ($row1['country'.$lang]) {$tbtx[$n][7]= "<a class='mm' href='?letter=".$letter."&order=country&up=ASC&sr=".$row1['country'.$lang]."'>".$row1['country'.$lang];}
-		     else {$tbtx[$n][7]="—";}
+
+		if ($sr and $order=="city") {$tbtx[$n][3]= $ct;} 
+		else {if ($row1['city'.$lang]) {$tbtx[$n][3]= "<a class='mm' href='?letter=".$letter."&order=city&up=ASC&sr=".$row1['city'.$lang]."'>".$ct."</a>";}
+		     else {$tbtx[$n][3]="—";}
 		}
+
+		$tbtx[$n][4]= $y;
+		$tbtx[$n][5]= $row1['num_tracks'];
 		
-		if ($row1['interview']) {$tbtx[$n][8]="+";} else {$tbtx[$n][8]="-";};
-		if ($row1['photo']) {$tbtx[$n][9]="+";} else {$tbtx[$n][9]="-";};
-		if ($row1['contact']) {$tbtx[$n][10]="+";} else {$tbtx[$n][10]="-";};
-		$tbtx[$n][11]= $row1['views'];
+		if ($row1['interview']) {$tbtx[$n][6]="+";} else {$tbtx[$n][6]="-";};
+		if ($row1['photo']) {$tbtx[$n][7]="+";} else {$tbtx[$n][7]="-";};
+		if ($row1['contact']) {$tbtx[$n][8]="+";} else {$tbtx[$n][8]="-";};
+		$tbtx[$n][9]= number_format((int) $row1['views'], 0, '', ' ');
 
 	$n++;	
 	}
@@ -422,5 +449,7 @@ $smarty->assign('tbtx', $tbtx);
 
 include "right_strip.php";  
 
+
+$smarty->assign('body_class', 'page-authors-list');
 
 $smarty->display('authors_list.tpl');

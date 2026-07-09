@@ -50,8 +50,8 @@ var first_track = {$remixes[0].id};
 </td>
 
 
-<td><a class='m' href='downloads.php?id={$remixes[n].song_id}' 
-title="{if $language eq 'rus'}Скачать {else}Download {/if} {$remixes[n].rti_title_ru}.mp3">{$remixes[n].rti_title_ru}</a> &nbsp; - &nbsp; <a class=mm href="author.php?id={$remixes[n].author_id}">{$remixes[n].nickname}</a> {if $remixes[n].year} © <span style="color: #888">{$remixes[n].year} год</span>{/if}</td>
+<td><a class='m' href='/downloads.php?id={$remixes[n].song_id}' 
+title="{if $language eq 'rus'}Скачать {else}Download {/if} {$remixes[n].rti_title_ru}.mp3">{$remixes[n].rti_title_ru}</a> &nbsp; - &nbsp; <a class=mm href="{$remixes[n].author_id|aurl}">{$remixes[n].nickname}</a> {if $remixes[n].year} © <span style="color: #888">{$remixes[n].year} год</span>{/if}</td>
 
 
 <td id="f{$remixes[n].song_id}"></td>

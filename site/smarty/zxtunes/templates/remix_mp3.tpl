@@ -61,11 +61,11 @@
 
 {if $remixes[n].original_id}
 
-{$remixes[n].title} <a class='m' href='downloads.php?id={$remixes[n].id}&md=remix_mp3'>MP3</a> &nbsp; <a class='m' href='downloads.php?id={$remixes[n].original_id}'>AY</a>
+{$remixes[n].title} <a class='m' href='/downloads.php?id={$remixes[n].id}&md=remix_mp3'>MP3</a> &nbsp; <a class='m' href='/downloads.php?id={$remixes[n].original_id}'>AY</a>
 
 {else}
 
-{$remixes[n].title} <a class='m' href='downloads.php?id={$remixes[n].id}&md=remix_mp3'>MP3</a>
+{$remixes[n].title} <a class='m' href='/downloads.php?id={$remixes[n].id}&md=remix_mp3'>MP3</a>
 
 {/if}
 
@@ -75,7 +75,7 @@
 
 {if $remixes[n].composer_name and $remixes[n].composer_id}
 
-	<a class='m' href='/author.php?id={$remixes[n].composer_id}'>{$remixes[n].composer_name}</a>
+	<a class='m' href='{$remixes[n].composer_id|aurl}'>{$remixes[n].composer_name}</a>
 	
 {elseif $remixes[n].composer_name}
 

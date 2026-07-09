@@ -111,10 +111,10 @@ var first_track = "{$search[0].id}";
 </td>
 
 
-<td style="padding-right: 8px"><a class=m href="author.php?id={$search[n].id_author}">{$search[n].nickname}</a></td>
+<td style="padding-right: 8px"><a class=m href="{$search[n].id_author|aurl}">{$search[n].nickname}</a></td>
 
 
-<td id="f{$search[n].id}"><a class='m' href='downloads.php?id={$search[n].id}' 
+<td id="f{$search[n].id}"><a class='m' href='/downloads.php?id={$search[n].id}' 
 title="{if $language eq 'rus'}Скачать {else}Download {/if} {$search[n].filename}">{$search[n].filename}</a></td>
 <td id="t{$search[n].id}" style="color: #888">{if $search[n].name}{$search[n].name}{else}&nbsp;{/if}</td>
 <td nowrap style="color: #888" valign=middle> &nbsp; 

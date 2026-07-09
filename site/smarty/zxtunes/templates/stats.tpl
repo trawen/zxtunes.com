@@ -28,12 +28,12 @@ On site: <b>{$authors[0]}</b> authors, <b>{$tunes[0]}</b> tunes, <b>{$photos[0]}
 {cycle values=""}
 <tr>
 <td align=center><b>{$bytunes[n].nm}.</b></td>
-<td><A class=m href="/author.php?id={$bytunes[n].id}">{$bytunes[n].nickname}</a></td>
+<td><A class=m href="{$bytunes[n].id|aurl}">{$bytunes[n].nickname}</a></td>
 <td>{$bytunes[n].num_tracks} 
 <span class=d>{if $language eq 'rus'}треков{else}tunes{/if}</span></td>
 
 <td align=center><b>{$bytunes[n].nm}.</b></td>
-<td><A class=m href="/author.php?id={$byyears[n].id}">{$byyears[n].nickname}</a></td>
+<td><A class=m href="{$byyears[n].id|aurl}">{$byyears[n].nickname}</a></td>
 <td>{$byyears[n][4]} 
 <span class=d>{if $language eq 'rus'}лет{else}years{/if}</span></td>
 

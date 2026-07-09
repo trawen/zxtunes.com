@@ -1,64 +1,41 @@
 <?php
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'newart');
-define('DB_PASS', 'zxfuckxackyou7765');
-define('DB_NAME', 'newart');
+require 'ini.php';
 
-$conn = mysql_connect (DB_HOST, DB_USER, DB_PASS);
-@mysql_select_db (DB_NAME, $conn);
-
-$id = intval($_REQUEST['id']);
-$id_author = intval($_REQUEST['id_author']);
-$type = intval($_REQUEST['type']);
+$id = intval($_REQUEST['id'] ?? 0);
+$id_author = intval($_REQUEST['id_author'] ?? 0);
+$type = intval($_REQUEST['type'] ?? 0);
 $tm = time();
-$true = strpos($_SERVER['HTTP_REFERER'], "zxtunes.com");
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+$true = (strpos($referer, 'zxtunes.com') !== false) || $referer === '' ? 1 : strpos($referer, 'zxtunes.com');
 
+if ($type == 1 && $id > 0 && $true) {
 
+    db_execute('UPDATE muzx_songs SET rating=rating+1 WHERE id=? LIMIT 1', 'i', [$id]);
 
-if ($type == 1 and $id > 0 and $true) {
+    $t = db_fetch_one('SELECT id_song FROM last_rate WHERE id_song=? LIMIT 1', 'i', [$id]);
+    if ($t && !empty($t['id_song'])) {
+        db_execute('UPDATE last_rate SET date=? WHERE id_song=? LIMIT 1', 'ii', [$tm, $id]);
+    } else {
+        db_execute(
+            'INSERT INTO last_rate (id_song, id_author, date) VALUES (?, ?, ?)',
+            'iii',
+            [$id, $id_author, $tm]
+        );
+    }
 
-   	mysqli_query($db,"UPDATE muzx_songs SET rating=rating+1 WHERE id='$id' LIMIT 1"); echo mysql_error();
+} elseif ($type == 2 && $id > 0 && $true) {
 
-	$z = mysqli_query($db,"SELECT * FROM last_rate WHERE id_song='$id' ");
-	$t = mysqli_fetch_array($z);
-	
-	if ($t['id_song']) {
-	
-		mysqli_query($db,"UPDATE last_rate SET date='$tm' WHERE id_song='$id' LIMIT 1");
-	
-	}
-	else {
-	
-		mysqli_query($db,"INSERT INTO `last_rate` ( `id_song` , `id_author` , `date` ) VALUES ( '$id' , '$id_author' , '$tm' )"); 
-	
-	}
-	
-	
-	
+    db_execute('UPDATE muzx_songs SET downloads=downloads+1 WHERE id=? LIMIT 1', 'i', [$id]);
+
+    $t = db_fetch_one('SELECT id_song FROM last_playing WHERE id_song=? LIMIT 1', 'i', [$id]);
+    if ($t && !empty($t['id_song'])) {
+        db_execute('UPDATE last_playing SET date=? WHERE id_song=? LIMIT 1', 'ii', [$tm, $id]);
+    } else {
+        db_execute(
+            'INSERT INTO last_playing (id_song, id_author, date) VALUES (?, ?, ?)',
+            'iii',
+            [$id, $id_author, $tm]
+        );
+    }
 }
-elseif ($type == 2 and $id > 0  and $true) {
-	
-	mysqli_query($db,"UPDATE muzx_songs SET downloads=downloads+1 WHERE id='$id' LIMIT 1");
-	
-	
-	$z = mysqli_query($db,"SELECT * FROM last_playing WHERE id_song = '$id' ");
-	$t = mysqli_fetch_array($z);
-	
-	if ($t['id_song']) {
-	
-		mysqli_query($db,"UPDATE last_playing SET date='$tm' WHERE id_song='$id' LIMIT 1");
-	
-	}
-	else {
-	
-		mysqli_query($db,"INSERT INTO `last_playing` ( `id_song` , `id_author` , `date` ) VALUES ( '$id' , '$id_author' , '$tm' )");
-	
-	}
-		
-	
-}
-
-
-
-?>

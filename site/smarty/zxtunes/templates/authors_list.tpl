@@ -1,78 +1,77 @@
 {include file="menu.tpl"}
- 
 
+<div class="authors-page">
 
-	<table border=0>
-	<tr> 
-    <td rowspan="2" vAlign=top style="PADDING-RIGHT: 0.4em;">
+<header class="authors-page__header">
+	<div class="authors-page__title">
+		<span class="authors-page__title-main">{$au}</span>
+		<span class="authors-page__title-per">{$per}</span>
+		<span class="authors-page__title-sort">{$srt}</span>
+	</div>
+	<div class="authors-page__alpha">{$alfavit}</div>
+</header>
 
-	<span vAlign=top style="FONT-WEIGHT: normal; FONT-SIZE: 1.9em; MARGIN: 0px 0px 0.5em"> {$au} </span>
-	<span vAlign=top style="FONT-SIZE: 1.4em; DISPLAY: inline;">{$per} </span>
-	<span vAlign=top style="FONT-WEIGHT: normal; FONT-SIZE: 1.9em; MARGIN: 0px 0px 2.5em; COLOR: #f09200;">
-	{$srt}</span>
-{*    <span class="dd" style="DISPLAY: inline;">{$kolvo}</span> *}
-	
-	<td>{$alfavit}</td>
-    </tr>
-	</table> 
-	
-<table width=100% border=0><tr><td align=left>
-<div id='Navigator2' style="PADDING-TOP: 1.2em;" align='left'><span style="FONT-SIZE: 1.2em;">
-{if $language eq 'rus'}Страницы: {else}Pages: {/if}</span> {$pages}</div></td><td align=right><div style="PADDING-TOP: 0.9em;"><span  class="dd">
-{if $language eq 'rus'}музыкантов {else}musicians {/if}</span> {$kl2} <span class="dd">
-{if $language eq 'rus'}из {else}from {/if}</span> {$kl4}</div></td></tr></table><br>
+<div class="authors-toolbar">
+	<div class="authors-toolbar__pages" id="Navigator2">
+		<span class="authors-toolbar__label">{if $language eq 'rus'}Страницы:{else}Pages:{/if}</span>
+		{$pages}
+	</div>
+	<div class="authors-toolbar__count">
+		<span class="dd">{if $language eq 'rus'}музыкантов{else}musicians{/if}</span>
+		{$kl2}
+		<span class="dd">{if $language eq 'rus'}из{else}from{/if}</span>
+		{$kl4}
+	</div>
+</div>
 
-	
-<table border=0 bgcolor=#ffffff cellpadding=2 cellspacing=0 width='100%'>
-<tr cellpadding=2 bgcolor=#dedbd8>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tb_title[0].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tb_title[1].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;' nowrap>{$tb_title[2].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tb_title[3].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tb_title[4].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;' nowrap>{$tb_title[5].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tb_title[6].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tb_title[7].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;' align=center nowrap>{$tb_title[8].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;' align=center nowrap>{$tb_title[9].link}</td>
-<td style='border-bottom: 1px solid #dedbd8;' align=center nowrap>{$tb_title[10].link}</td> 
-<td style='border-bottom: 1px solid #dedbd8;' align=center nowrap>{$tb_title[11].link}</td>
-</tr>
+<div class="authors-grid-wrap">
+<div class="authors-grid" role="table" aria-label="{if $language eq 'rus'}Список музыкантов{else}Musicians list{/if}">
+	<div class="authors-grid__row authors-grid__row--head" role="row">
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--nick" role="columnheader">{$tb_title[0].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--group" role="columnheader">{$tb_title[1].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--country" role="columnheader">{$tb_title[2].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--city" role="columnheader">{$tb_title[3].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--years" role="columnheader">{$tb_title[4].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--num" role="columnheader">{$tb_title[5].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--meta" role="columnheader">{$tb_title[6].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--meta" role="columnheader">{$tb_title[7].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--meta" role="columnheader">{$tb_title[8].link}</div>
+		<div class="authors-grid__cell authors-grid__cell--head authors-grid__cell--views" role="columnheader">{$tb_title[9].link}</div>
+	</div>
 
 {section name=n loop=$tbtx}
-{cycle values=""}
-<tr>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][0]}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][1]}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][2]}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][3]}</td>
-<td align=center style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][4]}</td>
-<td align=center style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][5]}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][6]}</td>
-<td style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][7]}</td>
-<td align=center style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][8]}</td>
-<td align=center style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][9]}</td>
-<td align=center style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][10]}</td>
-<td align=center style='border-bottom: 1px solid #dedbd8;'>{$tbtx[n][11]}</td>
-</tr>
+	<div class="authors-grid__row" role="row">
+		<div class="authors-grid__cell authors-grid__cell--nick" role="cell">{$tbtx[n][0]}</div>
+		<div class="authors-grid__cell authors-grid__cell--group" role="cell">{$tbtx[n][1]}</div>
+		<div class="authors-grid__cell authors-grid__cell--country" role="cell">{$tbtx[n][2]}</div>
+		<div class="authors-grid__cell authors-grid__cell--city" role="cell">{$tbtx[n][3]}</div>
+		<div class="authors-grid__cell authors-grid__cell--years" role="cell">{$tbtx[n][4]}</div>
+		<div class="authors-grid__cell authors-grid__cell--num" role="cell">{$tbtx[n][5]}</div>
+		<div class="authors-grid__cell authors-grid__cell--meta" role="cell">{$tbtx[n][6]}</div>
+		<div class="authors-grid__cell authors-grid__cell--meta" role="cell">{$tbtx[n][7]}</div>
+		<div class="authors-grid__cell authors-grid__cell--meta" role="cell">{$tbtx[n][8]}</div>
+		<div class="authors-grid__cell authors-grid__cell--views" role="cell">{$tbtx[n][9]}</div>
+	</div>
 {/section}
 
-</table>
-	  
+</div>
+</div>
 
-  
-	  
-<br>
-<table width=100% border=0><tr><td align=left>
-<div id='Navigator2' style="PADDING-TOP: 1.2em;" align='left'><span style="FONT-SIZE: 12px;">
-{if $language eq 'rus'}Страницы: {else}Pages: {/if}</span> {$pages}</div></td><td align=right><div style="PADDING-TOP: 0.9em;"><span  class="dd">
-{if $language eq 'rus'}музыкантов {else}musicians {/if}</span> {$kl2} <span class="dd">
-{if $language eq 'rus'}из {else}from {/if}</span> {$kl4}</div></td></tr></table><br>
-	  
+<div class="authors-toolbar authors-toolbar--bottom">
+	<div class="authors-toolbar__pages" id="Navigator2">
+		<span class="authors-toolbar__label">{if $language eq 'rus'}Страницы:{else}Pages:{/if}</span>
+		{$pages}
+	</div>
+	<div class="authors-toolbar__count">
+		<span class="dd">{if $language eq 'rus'}музыкантов{else}musicians{/if}</span>
+		{$kl2}
+		<span class="dd">{if $language eq 'rus'}из{else}from{/if}</span>
+		{$kl4}
+	</div>
+</div>
 
+</div>
 
-
-	  
 {include file="right_strip.tpl"}
 
 {include file="footer.tpl"}

@@ -9,7 +9,7 @@ muzx_authors.years_from='0' OR muzx_authors.photo='' ORDER BY RAND() LIMIT 4 " )
 while ($wan = mysqli_fetch_array($upl)) {
 
 $z=0;
-$wanted.="<A class=m href='/author.php?id=".$wan['id']."'>".$wan['nickname']."</A> ";
+$wanted.="<A class=m href='".h(zxtunes_author_url_by_id((int) $wan['id']))."'>".h($wan['nickname'])."</A> ";
 
 if ($_SESSION['language']=="rus") {
 if (!$wan['first_name'] and !$wan['last_name']) {$wanted.="ФИО"; $z++;}

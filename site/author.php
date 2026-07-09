@@ -1,6 +1,8 @@
 <?php
 
 require 'ini.php';
+zxtunes_resolve_author_request();
+zxtunes_redirect_legacy_author_url();
 
 $interview = (int) ($_REQUEST['interview'] ?? 0);
 $play=$_REQUEST['play'];
@@ -24,7 +26,7 @@ if (!$page) {$page = 1;}
 
 
 if (!$md) {$md=1;}
-if (!$ln) {$ln="eng";}
+if (!$ln) {$ln = (($_SESSION['language'] ?? 'rus') === 'rus') ? 'rus' : 'eng';}
 $order = zxtunes_song_order((string) ($order ?? ''));
 if (!$up) {$up="DESC";}
 $up = zxtunes_sort_dir($up);
@@ -38,12 +40,173 @@ function goodname($name) {
 
 function geturl($i){
   global $id,$md,$fr,$lm,$up,$order;
-  $a="/author.php?id=".$id;
-  if ($i) {$a.="&tnid=".$i;}
-  if ($lm and $lm!=$nm) {$a.="&lm=".$lm;}
-  if ($up and $up!='DESC') {$a.="&up=".$up;}
-  if ($order and $order!='year') {$a.="&order=".$order;}
-  return $a;
+  $params = [];
+  if ($i) {$params['tnid'] = $i;}
+  if ($lm and $lm!=$GLOBALS['nm']) {$params['lm'] = $lm;}
+  if ($up and $up!='DESC') {$params['up'] = $up;}
+  if ($order and $order!='year') {$params['order'] = $order;}
+  return zxtunes_author_url_by_id((int) $id, $params);
+}
+
+/**
+ * Build schema.org JSON-LD (MusicGroup + top tracks + breadcrumbs) for an author page.
+ */
+function zxtunes_author_schema(array $author, int $id, $db): string
+{
+	$lang = (($_SESSION['language'] ?? 'rus') === 'rus') ? 'ru' : 'en';
+
+	$base = getenv('ZXTUNES_BASE_URL') ?: '';
+	if ($base === '') {
+		$fwd_proto = strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+		$https_on = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $fwd_proto === 'https';
+		$scheme = $https_on ? 'https' : 'http';
+		$host = $_SERVER['HTTP_HOST'] ?? 'zxtunes.com';
+		$base = $scheme . '://' . $host;
+	}
+	$base = rtrim($base, '/');
+	$author_url = $base . zxtunes_author_url($author, [], $lang);
+
+	$nickname = trim((string) ($author['nickname'] ?? ''));
+	if ($nickname === '') {
+		$nickname = 'ZXTunes author #' . $id;
+	}
+
+	$artist = [
+		'@type' => 'MusicGroup',
+		'@id' => $author_url . '#artist',
+		'name' => $nickname,
+		'url' => $author_url,
+	];
+
+	if ($lang === 'ru') {
+		$real = trim(trim((string) ($author['first_name'] ?? '')) . ' ' . trim((string) ($author['last_name'] ?? '')));
+		$city = trim((string) ($author['city'] ?? ''));
+		$country = trim((string) ($author['country'] ?? ''));
+		$desc = trim((string) ($author['meta_description_ru'] ?? ''));
+	} else {
+		$real = trim(trim((string) ($author['first_name_en'] ?? '')) . ' ' . trim((string) ($author['last_name_en'] ?? '')));
+		$city = trim((string) ($author['city_en'] ?? '')) ?: trim((string) ($author['city'] ?? ''));
+		$country = trim((string) ($author['country_en'] ?? '')) ?: trim((string) ($author['country'] ?? ''));
+		$desc = trim((string) ($author['meta_description_en'] ?? ''));
+	}
+
+	$alt = [];
+	if ($real !== '' && strcasecmp($real, $nickname) !== 0) {
+		$alt[] = $real;
+	}
+	$also = trim((string) ($author['also'] ?? ''));
+	if ($also !== '' && strcasecmp($also, 'NULL') !== 0) {
+		foreach (preg_split('#[,;/]#', $also) as $piece) {
+			$piece = trim($piece);
+			if ($piece !== '' && !in_array($piece, $alt, true)) {
+				$alt[] = $piece;
+			}
+		}
+	}
+	if ($alt) {
+		$artist['alternateName'] = count($alt) === 1 ? $alt[0] : $alt;
+	}
+
+	if ($desc !== '') {
+		$artist['description'] = $desc;
+	}
+
+	if (!empty($author['photo'])) {
+		$artist['image'] = $base . '/photo/' . $id . '.jpg';
+	}
+
+	if ($city !== '' || $country !== '') {
+		$place_name = trim($city . (($city !== '' && $country !== '') ? ', ' : '') . $country);
+		$address = ['@type' => 'PostalAddress'];
+		if ($city !== '') {
+			$address['addressLocality'] = $city;
+		}
+		if ($country !== '') {
+			$address['addressCountry'] = $country;
+		}
+		$artist['foundingLocation'] = [
+			'@type' => 'Place',
+			'name' => $place_name,
+			'address' => $address,
+		];
+	}
+
+	$yf = (int) ($author['years_from'] ?? 0);
+	if ($yf > 0) {
+		$artist['foundingDate'] = (string) $yf;
+	}
+
+	$artist['genre'] = ['Chiptune', 'ZX Spectrum music'];
+
+	if (!empty($author['site_url'])) {
+		$artist['sameAs'] = [$author['site_url']];
+	}
+
+	$track_rows = db_fetch_all(
+		"SELECT muzx_songs.id, muzx_songs.name, muzx_songs.filename, muzx_songs.time
+		 FROM muzx_songs
+		 JOIN muzx_songs_authors ON muzx_songs.id = muzx_songs_authors.song_id
+		 WHERE muzx_songs_authors.author_id=? AND muzx_songs.hidden!=1
+		 ORDER BY muzx_songs.downloads DESC, muzx_songs.rating DESC
+		 LIMIT 10",
+		'i',
+		[$id]
+	);
+
+	$tracks = [];
+	foreach ((array) $track_rows as $t) {
+		$name = trim(decode_text($t['name'] ?? ''));
+		if ($name === '') {
+			$name = trim((string) ($t['filename'] ?? ''));
+		}
+		if ($name === '') {
+			continue;
+		}
+		$name = preg_replace('/\s+/u', ' ', $name);
+		$recording = [
+			'@type' => 'MusicRecording',
+			'name' => $name,
+			'url' => $base . '/downloads.php?id=' . (int) $t['id'],
+			'byArtist' => ['@id' => $author_url . '#artist'],
+		];
+		$frames = (int) ($t['time'] ?? 0);
+		if ($frames > 0) {
+			$seconds = (int) ceil($frames / 50);
+			$recording['duration'] = sprintf('PT%dM%dS', intdiv($seconds, 60), $seconds % 60);
+		}
+		$tracks[] = $recording;
+	}
+	if ($tracks) {
+		$artist['track'] = $tracks;
+	}
+
+	$breadcrumb = [
+		'@type' => 'BreadcrumbList',
+		'itemListElement' => [
+			[
+				'@type' => 'ListItem',
+				'position' => 1,
+				'name' => ($lang === 'ru') ? 'Авторы' : 'Authors',
+				'item' => $base . '/authors_list.php',
+			],
+			[
+				'@type' => 'ListItem',
+				'position' => 2,
+				'name' => $nickname,
+				'item' => $author_url,
+			],
+		],
+	];
+
+	$graph = [
+		'@context' => 'https://schema.org',
+		'@graph' => [$artist, $breadcrumb],
+	];
+
+	return json_encode(
+		$graph,
+		JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_PRETTY_PRINT
+	);
 }
 
 
@@ -72,7 +235,7 @@ if ($id and ( $submit=="Submit" or $submit=="Отправить" )) {
 		[$id, $message, $name, $email, $tm, $ip]
 	);
 	
-	header("Location: /author.php?id=$id&md=4");
+	header('Location: ' . zxtunes_author_url_by_id($id, ['md' => 4]));
 	exit;	
 	
 }
@@ -188,9 +351,27 @@ $smarty->assign('title', $t);
 
 if ($row1['dead']) {$row1['dead'] = dt($row1['dead']);}
 
+if (!empty($row1['site'])) {
+	if (!preg_match('#^https?://#i', $row1['site'])) {
+		$row1['site_url'] = 'http://' . $row1['site'];
+		$row1['site_label'] = $row1['site'];
+	} else {
+		$row1['site_url'] = $row1['site'];
+		$row1['site_label'] = preg_replace('#^https?://#i', '', $row1['site']);
+	}
+	if (stripos($row1['site'], 'rmjq.info') !== false) {
+		$row1['site_label'] = 'rmjq.info';
+	}
+} else {
+	$row1['site_url'] = '';
+	$row1['site_label'] = '';
+}
+
 
 
 $smarty->assign('author', $row1);
+$smarty->assign('author_url', zxtunes_author_url($row1));
+$smarty->assign('author_name_js', json_encode((string) $row1['nickname'], JSON_UNESCAPED_UNICODE));
 $f="";
 switch (strtolower($row1['country_en']))
 		{case 'russia': $f= "ru"; break; 
@@ -281,7 +462,7 @@ if (!$f) { $oth_auth2[$z]['id']=$oth_auth[$i]['id']; $oth_auth2[$z]['nickname']=
 }
 
 for ($i=0; $i<$z; $i++) {if ($i>0) {$other.=", ";}
-$other.="<a href='author.php?id=".$oth_auth2[$i]['id']."'>".$oth_auth2[$i]['nickname']."</a>";}
+$other.="<a href='".h(zxtunes_author_url_by_id((int) $oth_auth2[$i]['id']))."'>".h($oth_auth2[$i]['nickname'])."</a>";}
 
 $smarty->assign('others', $other);
 
@@ -375,6 +556,7 @@ foreach ($song_rows as $t) {
 	
 	if ($last != $t['year']) {$t['print_year'] = 1; $last = $t['year'];}
 	
+	$t['name_raw'] = $t['name'];
 	$t['name'] = htmlentities($t['name']);
 	$s = ceil($t['time']/50);
 	$sec = sprintf("%02d", $s - ((intval($s/60)) * 60));
@@ -410,6 +592,21 @@ $a[0]['prev_id'] = $a[$n-1]['id'];
 $a[$n-1]['next_id'] = $a[0]['id'];
 
 $smarty->assign('playlist', $a);
+
+$playlist_js = [];
+foreach ($a as $track) {
+	$playlist_js[] = [
+		'id' => (int) $track['id'],
+		'url' => '/fym2/' . $id . '/' . $track['id'] . '.fym',
+		'filename' => decode_text($track['filename']),
+		'title' => decode_text($track['name_raw']),
+		'time' => $track['time'],
+		'next_id' => (int) $track['next_id'],
+		'prev_id' => (int) $track['prev_id'],
+	];
+}
+$smarty->assign('playlist_js', json_encode($playlist_js, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+$smarty->assign('first_track_id', $n > 0 ? (int) $a[0]['id'] : 0);
 
 
 
@@ -473,7 +670,7 @@ $gbk[0]--;
 $smarty->assign('guestbook', $g);
 }
 
-$smarty->assign('autoplay', $_REQUEST['play']);
+$smarty->assign('autoplay', (int) ($_REQUEST['play'] ?? 0));
 
 $smarty->assign('fym_hidden', $_REQUEST['fym_hidden']);
 
@@ -484,6 +681,10 @@ $smarty->assign('nmtrpl', $nmtrpl);
 
 $smarty->assign('id_fym', sprintf("%04d", $id));
 $smarty->assign('md', $md);
+
+if ($row1) {
+	$smarty->assign('schema_jsonld', zxtunes_author_schema($row1, $id, $db));
+}
 
 include "right_strip.php";  
 

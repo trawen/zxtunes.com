@@ -11,18 +11,18 @@
 
 {if $sort eq "playing"}
 
-<a class="m" href="author.php?id={$author.id}&sort=year">году</a> &nbsp;&nbsp; <a class="m" href="author.php?id={$author.id}&sort=rating">языку</a>
+<a class="m" href="{$author.id|aurl}?sort=year">году</a> &nbsp;&nbsp; <a class="m" href="{$author.id|aurl}?sort=rating">языку</a>
  &nbsp;&nbsp; просмотрам
 
 {elseif $sort eq "rating"}
 
- <a class="m" href="author.php?id={$author.id}&sort=year">году</a> &nbsp;&nbsp; языку
- &nbsp;&nbsp; <a class="m" href="author.php?id={$author.id}&sort=playing">просмотрам</a>
+ <a class="m" href="{$author.id|aurl}?sort=year">году</a> &nbsp;&nbsp; языку
+ &nbsp;&nbsp; <a class="m" href="{$author.id|aurl}?sort=playing">просмотрам</a>
 
 {else}
 
-году &nbsp;&nbsp; <a class="m" href="author.php?id={$author.id}&sort=rating">языку</a>
- &nbsp;&nbsp; <a class="m" href="author.php?id={$author.id}&sort=playing">просмотрам</a>
+году &nbsp;&nbsp; <a class="m" href="{$author.id|aurl}?sort=rating">языку</a>
+ &nbsp;&nbsp; <a class="m" href="{$author.id|aurl}?sort=playing">просмотрам</a>
 
 {/if}
 </b>
@@ -40,18 +40,18 @@
 
 {if $sort eq "playing"}
 
-<a class="m" href="author.php?id={$author.id}&sort=year">year</a> &nbsp;&nbsp; <a class="m" href="author.php?id={$author.id}&sort=rating">language</a>
+<a class="m" href="{$author.id|aurl}?sort=year">year</a> &nbsp;&nbsp; <a class="m" href="{$author.id|aurl}?sort=rating">language</a>
  &nbsp;&nbsp; views
 
 {elseif $sort eq "rating"}
 
- <a class="m" href="author.php?id={$author.id}&sort=year">year</a> &nbsp;&nbsp; language
- &nbsp;&nbsp; <a class="m" href="author.php?id={$author.id}&sort=playing">views</a>
+ <a class="m" href="{$author.id|aurl}?sort=year">year</a> &nbsp;&nbsp; language
+ &nbsp;&nbsp; <a class="m" href="{$author.id|aurl}?sort=playing">views</a>
 
 {else}
 
 year &nbsp;&nbsp; language
- &nbsp;&nbsp; <a class="m" href="author.php?id={$author.id}&sort=playing">views</a>
+ &nbsp;&nbsp; <a class="m" href="{$author.id|aurl}?sort=playing">views</a>
 
 {/if}
 </b>
@@ -101,7 +101,7 @@ year &nbsp;&nbsp; language
 
 
 
-<td valign=middle nowrap style="line-height: 1.8">&nbsp; <a class=m href="/author.php?id={$interview[n].int_author_id}&md=3&interview={$interview[n].int_id}">{$interview[n].nickname}</a> ({if $interview[n].fist_name or $interview[n].last_name}{$interview[n].first_name} {$interview[n].last_name}{/if})<br> &nbsp; © {$interview[n].int_year} {$interview[n].int_author} ®
+<td valign=middle nowrap style="line-height: 1.8">&nbsp; <a class=m href="{$interview[n].int_author_id|aurl}?md=3&interview={$interview[n].int_id}">{$interview[n].nickname}</a> ({if $interview[n].fist_name or $interview[n].last_name}{$interview[n].first_name} {$interview[n].last_name}{/if})<br> &nbsp; © {$interview[n].int_year} {$interview[n].int_author} ®
 
 
 </td>

@@ -39,7 +39,7 @@ var first_track = "{$playlist[0].id}";
 <div id="a{$playlist[n].id}" style="display: none">{$author_id}</div>
 </td>
 
-<td id="f{$playlist[n].id}" style="padding: 0; margin: 0; color: black"><a rel="nofollow" class='m' href='downloads.php?id={$playlist[n].id}' 
+<td id="f{$playlist[n].id}" style="padding: 0; margin: 0; color: black"><a rel="nofollow" class='m' href='/downloads.php?id={$playlist[n].id}' 
 title="{if $language eq 'rus'}Скачать {else}Download {/if} {$playlist[n].filename}">{$playlist[n].filename}</a>
 {if $playlist[n].name} - {/if}
 <span>{$playlist[n].name}</span>

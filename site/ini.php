@@ -25,6 +25,7 @@ require_once __DIR__ . '/includes/csrf.php';
 require_once __DIR__ . '/includes/session_auth.php';
 
 require_once __DIR__ . '/includes/sql_helpers.php';
+require_once __DIR__ . '/includes/author_urls.php';
 
 
 
@@ -54,16 +55,18 @@ if (!$db) {
 
 }
 
-mysqli_set_charset($db, 'utf8');
+mysqli_set_charset($db, 'utf8mb4');
 
 
 
 $language = $_REQUEST['ln'] ?? null;
-
-if (!$language) {
-
+if ($language === 'ru') {
     $language = 'rus';
-
+} elseif ($language === 'en') {
+    $language = 'eng';
+}
+if (!$language) {
+    $language = 'rus';
 }
 
 $_SESSION['language'] = $language;
@@ -213,8 +216,13 @@ function smarty_modifier_h($string)
 }
 
 $smarty->register_modifier('h', 'smarty_modifier_h');
+$smarty->register_modifier('aurl', 'smarty_modifier_aurl');
 
 $smarty->assign('csrf_token', csrf_token());
+$smarty->assign('css_v', (string) @filemtime(__DIR__ . '/css/zxtunes.css'));
+$smarty->assign('authors_map_url', zxtunes_authors_map_url());
+$smarty->assign('search_url', zxtunes_search_url());
+$smarty->assign('search_query', trim((string) ($_REQUEST['srtext'] ?? '')));
 
 
 

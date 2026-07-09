@@ -137,6 +137,8 @@ services:
     security_opt:
       - no-new-privileges:true
     logging: *default-logging
+    ports:
+      - "127.0.0.1:3306:3306"
     networks:
       - backend
     mem_limit: 512m
