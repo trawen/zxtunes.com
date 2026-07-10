@@ -29,7 +29,7 @@
 	var map = L.map('authors-map', {
 		worldCopyJump: true,
 		scrollWheelZoom: true
-	}).setView([30, 20], 2);
+	});
 
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 18,
@@ -150,18 +150,22 @@
 		}).bindPopup(popup).addTo(map);
 	}
 
-	if (bounds.length) {
-		map.fitBounds(bounds, { padding: [24, 24], maxZoom: 5 });
+	function setMapView() {
+		if (bounds.length) {
+			map.setView(L.latLngBounds(bounds).getCenter(), 4.5);
+		} else {
+			map.setView([30, 20], 1);
+		}
 	}
+
+	setMapView();
 
 	window.addEventListener('resize', function () {
 		map.invalidateSize();
 	});
 	setTimeout(function () {
 		map.invalidateSize();
-		if (bounds.length) {
-			map.fitBounds(bounds, { padding: [16, 16], maxZoom: 5 });
-		}
+		setMapView();
 	}, 150);
 })();
 </script>

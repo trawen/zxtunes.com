@@ -21,6 +21,8 @@ USER_AGENT = "zxtunes.com city-map-builder/1.0 (contact: admin@zxtunes.com)"
 CITY_ALIASES = {
     "st.petersburg": "Saint Petersburg",
     "st petersburg": "Saint Petersburg",
+    "saint-petersburg": "Saint Petersburg",
+    "saint petersburg": "Saint Petersburg",
     "kharkov": "Kharkiv",
     "kiev": "Kyiv",
     "dnepropetrovsk": "Dnipro",

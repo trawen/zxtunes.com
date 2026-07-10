@@ -2,11 +2,115 @@
 
 require_once __DIR__ . '/country_flags.php';
 
+function zxtunes_normalize_map_city(string $city): string
+{
+    $city = trim($city);
+    $city = preg_replace('/\s*\(\?\)\s*$/u', '', $city) ?? $city;
+    $city = rtrim($city, '?');
+    $city = trim($city);
+
+    $key = mb_strtolower(preg_replace('/\s+/u', ' ', $city) ?? $city, 'UTF-8');
+    static $aliases = [
+        'saint-petersburg' => 'st.petersburg',
+        'saint petersburg' => 'st.petersburg',
+        'st petersburg' => 'st.petersburg',
+        'st. petersburg' => 'st.petersburg',
+        'spb' => 'st.petersburg',
+        'ленинград' => 'st.petersburg',
+        'kharkov' => 'kharkov',
+        'kiev' => 'kiev',
+        'dnepropetrovsk' => 'dnepropetrovsk',
+        'ekaterinburg' => 'ekaterinburg',
+        'ekaterenburg' => 'ekaterinburg',
+        'rosto on don' => 'rostov-na-donu',
+        'novosibirsk' => 'novosibirsk',
+    ];
+
+    return $aliases[$key] ?? $city;
+}
+
+function zxtunes_normalize_map_country(string $country_ru, string $country_en): string
+{
+    $country = trim($country_en) !== '' ? trim($country_en) : trim($country_ru);
+    $key = mb_strtolower($country, 'UTF-8');
+    static $aliases = [
+        'england' => 'united kingdom',
+        'scotland' => 'united kingdom',
+        'northern ireland' => 'united kingdom',
+    ];
+
+    return $aliases[$key] ?? $country;
+}
+
 function zxtunes_city_map_key(string $city_ru, string $city_en, string $country_ru, string $country_en): string
 {
     $city = trim($city_en) !== '' ? trim($city_en) : trim($city_ru);
-    $country = trim($country_en) !== '' ? trim($country_en) : trim($country_ru);
+    $city = zxtunes_normalize_map_city($city);
+    $country = zxtunes_normalize_map_country($country_ru, $country_en);
+
     return mb_strtolower($city . '|' . $country, 'UTF-8');
+}
+
+function zxtunes_map_coord_key(float $lat, float $lng): string
+{
+    return round($lat, 4) . '|' . round($lng, 4);
+}
+
+function zxtunes_merge_map_point(array $existing, array $point): array
+{
+    if ($point['count'] > ($existing['_part_count'] ?? 0)) {
+        $existing['city_ru'] = $point['city_ru'];
+        $existing['city_en'] = $point['city_en'];
+        $existing['country_ru'] = $point['country_ru'];
+        $existing['country_en'] = $point['country_en'];
+        $existing['_part_count'] = $point['count'];
+    }
+
+    $existing['count'] += $point['count'];
+
+    return $existing;
+}
+
+function zxtunes_city_variant_key(array $row): string
+{
+    return implode("\0", [
+        (string) ($row['city_ru'] ?? ''),
+        (string) ($row['city_en'] ?? ''),
+        (string) ($row['country_ru'] ?? ''),
+        (string) ($row['country_en'] ?? ''),
+    ]);
+}
+
+function zxtunes_fetch_top_city_authors(array $variants): array
+{
+    if ($variants === []) {
+        return [];
+    }
+
+    $conds = [];
+    $types = '';
+    $params = [];
+
+    foreach ($variants as $variant) {
+        $conds[] = '(TRIM(COALESCE(city, "")) = ? '
+            . 'AND TRIM(COALESCE(city_en, "")) = ? '
+            . 'AND TRIM(COALESCE(country, "")) = ? '
+            . 'AND TRIM(COALESCE(country_en, "")) = ?)';
+        $types .= 'ssss';
+        $params[] = (string) ($variant['city_ru'] ?? '');
+        $params[] = (string) ($variant['city_en'] ?? '');
+        $params[] = (string) ($variant['country_ru'] ?? '');
+        $params[] = (string) ($variant['country_en'] ?? '');
+    }
+
+    return db_fetch_all(
+        'SELECT id, nickname, num_tracks FROM muzx_authors '
+        . 'WHERE (' . implode(' OR ', $conds) . ') '
+        . 'AND num_tracks >= 2 '
+        . 'ORDER BY num_tracks DESC, nickname ASC',
+        $types,
+        $params
+    );
 }
 
 function zxtunes_load_city_coords(): array
@@ -49,7 +153,7 @@ function zxtunes_author_map_points(): array
     );
 
     $coords = zxtunes_load_city_coords();
-    $points = [];
+    $merged = [];
 
     foreach ($rows as $row) {
         $key = zxtunes_city_map_key(
@@ -64,7 +168,7 @@ function zxtunes_author_map_points(): array
         }
 
         $c = $coords[$key];
-        $points[] = [
+        $point = [
             'lat' => (float) $c['lat'],
             'lng' => (float) $c['lng'],
             'count' => (int) $row['cnt'],
@@ -73,7 +177,26 @@ function zxtunes_author_map_points(): array
             'country_ru' => (string) ($row['country_ru'] ?? ''),
             'country_en' => (string) ($row['country_en'] ?? ''),
         ];
+
+        $coordKey = zxtunes_map_coord_key($point['lat'], $point['lng']);
+        if (!isset($merged[$coordKey])) {
+            $point['_part_count'] = $point['count'];
+            $merged[$coordKey] = $point;
+            continue;
+        }
+
+        $merged[$coordKey] = zxtunes_merge_map_point($merged[$coordKey], $point);
     }
+
+    $points = [];
+    foreach ($merged as $point) {
+        unset($point['_part_count']);
+        $points[] = $point;
+    }
+
+    usort($points, static function (array $a, array $b): int {
+        return $b['count'] <=> $a['count'];
+    });
 
     return $points;
 }
@@ -118,28 +241,65 @@ function zxtunes_author_map_top_cities(int $limit = 10): array
         . 'WHERE (TRIM(COALESCE(city, "")) <> "" OR TRIM(COALESCE(city_en, "")) <> "") '
         . 'AND num_tracks >= 2 '
         . 'GROUP BY city_ru, city_en, country_ru, country_en '
-        . 'ORDER BY cnt DESC '
-        . 'LIMIT ' . $limit
+        . 'ORDER BY cnt DESC'
     );
+
+    $coords = zxtunes_load_city_coords();
+    $mergedRows = [];
+
+    foreach ($rows as $row) {
+        $key = zxtunes_city_map_key(
+            (string) ($row['city_ru'] ?? ''),
+            (string) ($row['city_en'] ?? ''),
+            (string) ($row['country_ru'] ?? ''),
+            (string) ($row['country_en'] ?? '')
+        );
+
+        if (!isset($coords[$key])) {
+            continue;
+        }
+
+        $c = $coords[$key];
+        $coordKey = zxtunes_map_coord_key((float) $c['lat'], (float) $c['lng']);
+        $row['cnt'] = (int) $row['cnt'];
+        $variant = [
+            'city_ru' => (string) ($row['city_ru'] ?? ''),
+            'city_en' => (string) ($row['city_en'] ?? ''),
+            'country_ru' => (string) ($row['country_ru'] ?? ''),
+            'country_en' => (string) ($row['country_en'] ?? ''),
+        ];
+        $variantKey = zxtunes_city_variant_key($variant);
+
+        if (!isset($mergedRows[$coordKey])) {
+            $mergedRows[$coordKey] = $row;
+            $mergedRows[$coordKey]['_part_count'] = $row['cnt'];
+            $mergedRows[$coordKey]['variants'] = [$variantKey => $variant];
+            continue;
+        }
+
+        $existing = $mergedRows[$coordKey];
+        if ($row['cnt'] > ($existing['_part_count'] ?? 0)) {
+            $mergedRows[$coordKey]['city_ru'] = $row['city_ru'];
+            $mergedRows[$coordKey]['city_en'] = $row['city_en'];
+            $mergedRows[$coordKey]['country_ru'] = $row['country_ru'];
+            $mergedRows[$coordKey]['country_en'] = $row['country_en'];
+            $mergedRows[$coordKey]['_part_count'] = $row['cnt'];
+        }
+        $mergedRows[$coordKey]['cnt'] += $row['cnt'];
+        $mergedRows[$coordKey]['variants'][$variantKey] = $variant;
+    }
+
+    $rows = array_values($mergedRows);
+    usort($rows, static function (array $a, array $b): int {
+        return $b['cnt'] <=> $a['cnt'];
+    });
+    $rows = array_slice($rows, 0, $limit);
 
     $cities = [];
     foreach ($rows as $row) {
-        $authors = db_fetch_all(
-            'SELECT id, nickname, num_tracks FROM muzx_authors '
-            . 'WHERE TRIM(COALESCE(city, "")) = ? '
-            . 'AND TRIM(COALESCE(city_en, "")) = ? '
-            . 'AND TRIM(COALESCE(country, "")) = ? '
-            . 'AND TRIM(COALESCE(country_en, "")) = ? '
-            . 'AND num_tracks >= 2 '
-            . 'ORDER BY num_tracks DESC, nickname ASC',
-            'ssss',
-            [
-                (string) ($row['city_ru'] ?? ''),
-                (string) ($row['city_en'] ?? ''),
-                (string) ($row['country_ru'] ?? ''),
-                (string) ($row['country_en'] ?? ''),
-            ]
-        );
+        $variants = array_values($row['variants'] ?? []);
+        unset($row['_part_count'], $row['variants']);
+        $authors = zxtunes_fetch_top_city_authors($variants);
 
         $cities[] = [
             'city_ru' => (string) ($row['city_ru'] ?? ''),
