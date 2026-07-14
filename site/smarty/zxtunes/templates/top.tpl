@@ -28,6 +28,7 @@
 {if $load_leaflet}
 <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
 <link rel="stylesheet" href="/css/leaflet/leaflet.css?v=1.9.4">
+{literal}
 <style>
 .page-authors-map .authors-map {
 	width: 100%;
@@ -44,6 +45,7 @@
 	}
 }
 </style>
+{/literal}
 {/if}
 
 <meta name="verify-v1" content="OlHdsBAsi/y17fbbfbH7yv5E4vWXtfwKbJOIuSaROVM=" />
