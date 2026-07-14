@@ -17,9 +17,8 @@ var first_track = "{$search[0].id}";
 {include file="flash.tpl"}
 
 
-
-<table width=100% border=0 ><tr><td align=left>
-<div id='Navigator2' style="PADDING-TOP: 1.2em;" align='left'><span style="FONT-SIZE: 12px;">
+<div class="zx-pager-bar">
+<div id='Navigator2'><span style="FONT-SIZE: 12px;">
 {if $language eq 'rus'}Страницы: {else}Pages: {/if}</span> 
 
 {section name=n loop=$pages}
@@ -30,11 +29,6 @@ var first_track = "{$search[0].id}";
 {/section}
 
 </div>
-</td>
-<td>
-
-
- 
 
 <form method="post">
 
@@ -58,87 +52,66 @@ var first_track = "{$search[0].id}";
 <input name="ok" value="ok" type="submit">
 </form>
 
-
-
-
-
-</td><td align=right><div style="PADDING-TOP: 0.9em;"><span  class="dd">
+<div class="zx-pager-bar__count"><span class="dd">
 {if $language eq 'rus'}треков {else}tunes {/if}</span> {$nm1} <span class="dd">
-{if $language eq 'rus'}из {else}from {/if}</span> {$nm2}</div></td></tr></table><br>
+{if $language eq 'rus'}из {else}from {/if}</span> {$nm2}</div>
+</div>
 
 
-
-
-
-
-
-
-
-
-
-<table border=0 cellpadding=0 cellspacing=0 width='100%'>
-<tr cellpadding=2 bgcolor=#dedbd8 height=16>
+<div class="zx-track-list">
+<div class="zx-track-list__head">
+<div></div>
 {if $language eq 'rus'}
-<td nowrap>&nbsp; &nbsp; &nbsp;</td>
-<td nowrap><b> Музыкант </b></td>
-<td nowrap><b>Имя файла</b></td>
-<td nowrap><b>Название трека</b></td>
-<td nowrap><b> &nbsp; Рейтинг</b></td>
-<td nowrap><b> &nbsp; Комм.</b></td>
-</tr>
+<div><b> Музыкант </b></div>
+<div><b>Имя файла</b></div>
+<div class="zx-track-list__cell--title"><b>Название трека</b></div>
+<div><b> &nbsp; Рейтинг</b></div>
+<div><b> &nbsp; Комм.</b></div>
 {else}
-<td nowrap>&nbsp; &nbsp; &nbsp;</td>
-<td nowrap><b> Musician </b></td>
-<td nowrap><b>File name</b></td>
-<td nowrap><b>Title</b></td>
-<td nowrap><b> &nbsp; Rating</b></td>
-<td nowrap><b> &nbsp; Comm.</b></td>
-</tr>
+<div><b> Musician </b></div>
+<div><b>File name</b></div>
+<div class="zx-track-list__cell--title"><b>Title</b></div>
+<div><b> &nbsp; Rating</b></div>
+<div><b> &nbsp; Comm.</b></div>
 {/if}
-
-<tr><td colspan="9" style="height: 2px;"></td></tr>
-
+</div>
 
 {section name=n loop=$search}
 
+<div class="zx-track-list__row" id="s{$search[n].id}">
 
-<tr id="s{$search[n].id}">
-
-<td width="26" align="center">
+<div>
 <div id="m{$search[n].id}" class="play" onclick="PlayB('{$search[n].id}')"></div>
 <div id="n{$search[n].id}" style="display: none">{$search[n].next_id}</div>
 <div id="p{$search[n].id}" style="display: none">{$search[n].prev_id}</div>
 <div id="a{$search[n].id}" style="display: none">{$search[n].id_author}</div>
-</td>
+</div>
 
+<div style="padding-right: 8px"><a class=m href="{$search[n].id_author|aurl}">{$search[n].nickname}</a></div>
 
-<td style="padding-right: 8px"><a class=m href="{$search[n].id_author|aurl}">{$search[n].nickname}</a></td>
-
-
-<td id="f{$search[n].id}"><a class='m' href='/downloads.php?id={$search[n].id}' 
-title="{if $language eq 'rus'}Скачать {else}Download {/if} {$search[n].filename}">{$search[n].filename}</a></td>
-<td id="t{$search[n].id}" style="color: #888">{if $search[n].name}{$search[n].name}{else}&nbsp;{/if}</td>
-<td nowrap style="color: #888" valign=middle> &nbsp; 
+<div id="f{$search[n].id}"><a class='m' href='/downloads.php?id={$search[n].id}' 
+title="{if $language eq 'rus'}Скачать {else}Download {/if} {$search[n].filename}">{$search[n].filename}</a></div>
+<div id="t{$search[n].id}" class="zx-track-list__cell--title" style="color: #888">{if $search[n].name}{$search[n].name}{else}&nbsp;{/if}</div>
+<div nowrap style="color: #888"> &nbsp; 
 
 <img onclick="Rate({$search[n].id})" id="r{$search[n].id}" class="{$search[n].rt}" src="css/handup.gif" title="{if $language eq 'rus'}Мне нравится!{else}I Like it!{/if}"> <div style="display: inline" id="rn{$search[n].id}">{$search[n].rating}</div>
-</td>
+</div>
 
-<td nowrap style="color: #777" valign=middle> &nbsp; 
+<div nowrap style="color: #777"> &nbsp; 
 <img onclick="Comm({$search[n].id})" class="rating" src="css/comments.gif" title="{if $language eq 'rus'}Добавить комментарий{else}Add Comment{/if}"> 
 <div style="display: inline; color: #{if $search[n].comments}0063B0{else}888{/if}" id="cm{$search[n].id}">{$search[n].comments}</div>
-</td>
+</div>
 
-</tr>
-<tr><td></td><td colspan="7" id="c{$search[n].id}" class="comment_off"></td></tr>
-<tr><td></td><td colspan="7" id="pl{$search[n].id}" class="plln" style="height: 13px"></td></tr>
-
+</div>
+<div id="c{$search[n].id}" class="comment_off zx-track-list__line"></div>
+<div id="pl{$search[n].id}" class="plln zx-track-list__line"></div>
 
 {/section}
-</table>  
+</div>  
 
 
-<table width=100% border=0 ><tr><td align=left>
-<div id='Navigator2' style="PADDING-TOP: 1.2em;" align='left'><span style="FONT-SIZE: 12px;">
+<div class="zx-pager-bar">
+<div id='Navigator2'><span style="FONT-SIZE: 12px;">
 {if $language eq 'rus'}Страницы: {else}Pages: {/if}</span> 
 
 {section name=n loop=$pages}
@@ -149,11 +122,6 @@ title="{if $language eq 'rus'}Скачать {else}Download {/if} {$search[n].fi
 {/section}
 
 </div>
-</td>
-<td>
-
-
- 
 
 <form method="post">
 
@@ -177,15 +145,10 @@ title="{if $language eq 'rus'}Скачать {else}Download {/if} {$search[n].fi
 <input name="ok" value="ok" type="submit">
 </form>
 
-
-
-
-
-</td><td align=right><div style="PADDING-TOP: 0.9em;"><span  class="dd">
+<div class="zx-pager-bar__count"><span class="dd">
 {if $language eq 'rus'}треков {else}tunes {/if}</span> {$nm1} <span class="dd">
-{if $language eq 'rus'}из {else}from {/if}</span> {$nm2}</div></td></tr></table><br>
-
-
+{if $language eq 'rus'}из {else}from {/if}</span> {$nm2}</div>
+</div>
 
 
 {include file="right_strip.tpl"}

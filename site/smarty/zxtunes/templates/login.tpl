@@ -3,9 +3,7 @@
 <script type="text/javascript" src="css/jquery.js"></script>
 
 
-<center>
-<div>
-<br><br><br>
+<div class="zx-login-wrap">
 
 {if $goto EQ "stargate"}
 
@@ -14,8 +12,6 @@
 {if $error EQ 100}
 <p style="color: red">Для завершения регистрации перейдите по коду высланному на E-Mail.</p>
 {else}
-
-<table><td><td align="center">
 
 {if $error EQ 6}
 <p style="color: red">Такой логин уже занят!</p>
@@ -30,10 +26,12 @@
 {/if}
 
 
+<div class="zx-split">
+
+<div class="zx-split__panel">
 <div style="font: normal 17px Verdana; letter-spacing: 2px">Регистрация</div>
 
-
-<form method="post" enctype="multipart/form-data">
+<form class="zx-form-stack" method="post" enctype="multipart/form-data">
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
 <b>
@@ -78,15 +76,11 @@ E-mail  <br> <input style="border: 1px solid #ccc; width: 140px"  name="email" t
 
 <p><a class="magn" href="makelove.php">Войти</a></p>
 <p><a class="magn" href="makelove.php?goto=totalrecall">Забыли пароль?</a></p>
-</td>
+</div>
 
+<div class="zx-split__sep"></div>
 
-
-
-<td width=64 align=center valign=top><br><br><br><div style="height: 200px; width: 1px; background-color: #EEE"></div></td>
-
-
-<td width=250px valign=top style="line-height: 18px"><br><br>
+<div class="zx-split__panel" style="line-height: 18px">
 
 <p><b>Благодаря регистрации вы сможете:</b></p>
 
@@ -95,19 +89,11 @@ E-mail  <br> <input style="border: 1px solid #ccc; width: 140px"  name="email" t
 <p>Редактировать свою страничку и загружать новые треки (если вы музыкант).</p>
 
 <p>Что-нибудь такое, что мы еще не придумали... </p>
-</td>
-</tr>
-</table>
+</div>
+
+</div>
 
 {/if}
-
-
-
-
-
-
-
-
 
 
 
@@ -128,7 +114,7 @@ E-mail  <br> <input style="border: 1px solid #ccc; width: 140px"  name="email" t
 
 <div style="font: normal 17px Verdana; letter-spacing: 0px">Востановление пароля</div>
 
-<form method="post">
+<form class="zx-form-stack" method="post">
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
 <b>
@@ -160,11 +146,9 @@ E-mail <br> <input style="border: 1px solid #ccc; width: 140px" type="text" name
 
 
 
-
-
 {elseif $goto EQ "alterego"}
 
-<form method="post" enctype="multipart/form-data">
+<form class="zx-form-stack" method="post" enctype="multipart/form-data">
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
 <input type="hidden" name="goto" value="{$goto}">
@@ -193,9 +177,6 @@ E-mail <br> <input style="border: 1px solid #ccc; width: 140px" type="text" name
 <input type="submit" name="submit" value="Отправить">
 
 </form>
-
-
-
 
 
 
@@ -237,9 +218,6 @@ E-mail <br> <input style="border: 1px solid #ccc; width: 140px" type="text" name
 
 
 
-
-
-
 	{else}
 
 	
@@ -260,7 +238,7 @@ E-mail <br> <input style="border: 1px solid #ccc; width: 140px" type="text" name
 {else}
 <div style="font: normal 17px Verdana; letter-spacing: 2px">Вход</div>
 	
-<form method="post">
+<form class="zx-form-stack" method="post">
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
 <b>
@@ -294,18 +272,7 @@ E-mail <br> <input style="border: 1px solid #ccc; width: 140px" type="text" name
 
 {/if}
 
-
-
 </div>
-</center>
-
-
-
-
-
-<br><br><br><br><br><br><br><br><br><br><br>
-
-
 
 {include file="right_strip.tpl"}
 

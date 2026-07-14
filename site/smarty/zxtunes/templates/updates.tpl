@@ -8,14 +8,14 @@
 
 <H3>{if $language eq 'rus'}Обновления - полный список{else}Updates - full list{/if}</H3>
 
-<table style="padding-left: 8px; FONT-SIZE: 1.6em;">
+<div class="zx-updates">
 {section name=n loop=$updates}
 {cycle values=""}
-<tr>
-<td align=left>{if $updates[n].update}<br>{/if}<SPAN class=d>{$updates[n].update}</SPAN>
-{if $updates[n].update}<SPAN class=d>{$updates[n].update2}</SPAN>{/if}</td>
+<div class="zx-updates__row">
+<div>{if $updates[n].update}<br>{/if}<SPAN class=d>{$updates[n].update}</SPAN>
+{if $updates[n].update}<SPAN class=d>{$updates[n].update2}</SPAN>{/if}</div>
 
-<td style='padding-left: 4px;'>{if $updates[n].update}<br>{/if}
+<div>{if $updates[n].update}<br>{/if}
 {if $language eq 'rus'}
 {if $updates[n].event eq 0}<A class=m href="{$updates[n].id|aurl}">{$updates[n].nickname}</A> обновил профайл 
 
@@ -47,9 +47,10 @@
 
 
 {/if}
-</td></tr>
+</div>
+</div>
 {/section}
-</table>
+</div>
 
 
 

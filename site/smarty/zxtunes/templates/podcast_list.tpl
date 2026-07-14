@@ -8,40 +8,39 @@
 	
 	
 	
-<table border=0 cellpadding=6 cellspacing=0 width='100%' >
-<tr height=18 bgcolor=#eeebe8>
+<div class="zx-data-grid zx-data-grid--podcast">
+<div class="zx-data-grid__row zx-data-grid__row--head">
 {if $language eq 'rus'}
-<td nowrap style="border-left: 1px solid #eeebe8; border-radius: 3px 0px 0px 3px"><b>Название</b></td>
-<td nowrap><b>Синопсис</b></td>
-<td nowrap><b>Дата</b></td>
-<td nowrap style="border-left: 1px solid #eeebe8; border-radius: 0px 3px 3px 0px"><b>Прочитано</b></td>
-</tr>
+<div class="zx-data-grid__cell"><b>Название</b></div>
+<div class="zx-data-grid__cell"><b>Синопсис</b></div>
+<div class="zx-data-grid__cell"><b>Дата</b></div>
+<div class="zx-data-grid__cell"><b>Прочитано</b></div>
 {else}
-<td nowrap style="border-left: 1px solid #eeebe8; border-radius: 3px 0px 0px 3px"><b>Title</b></td>
-<td nowrap><b>Synopsis</b></td>
-<td nowrap><b>Date</b></td>
-<td nowrap style="border-left: 1px solid #eeebe8; border-radius: 0px 3px 3px 0px"><b>Reads</b></td>
-</tr>
+<div class="zx-data-grid__cell"><b>Title</b></div>
+<div class="zx-data-grid__cell"><b>Synopsis</b></div>
+<div class="zx-data-grid__cell"><b>Date</b></div>
+<div class="zx-data-grid__cell"><b>Reads</b></div>
 {/if}
+</div>
 
 
 {section name=n loop=$tbtx}
 
-<tr>
-<td style='border-bottom: 1px solid #eeebe8;' valign=middle nowrap>{$tbtx[n][1]}</td>
+<div class="zx-data-grid__row">
+<div class="zx-data-grid__cell">{$tbtx[n][1]}</div>
 
-<td style='border-bottom: 1px solid #eeebe8;' align=justify>
+<div class="zx-data-grid__cell" style="text-align: justify;">
 {if $language eq 'rus'}{$tbtx[n].sample_rus}{else}{$tbtx[n].sample_eng}{/if} &nbsp;
 <a class=d style="color: red;" href="/podcast.php?id={$tbtx[n].id}">
 {if $language eq 'rus'}читать {else}read {/if}</a>→<br><br>
-</td>
+</div>
 
-<td style='border-bottom: 1px solid #eeebe8;' valign=middle nowrap>&nbsp;{$tbtx[n][3]}&nbsp;</td>
-<td style='border-bottom: 1px solid #eeebe8;' valign=middle align=center>{$tbtx[n][4]}</td>
-</tr>
+<div class="zx-data-grid__cell">&nbsp;{$tbtx[n][3]}&nbsp;</div>
+<div class="zx-data-grid__cell">{$tbtx[n][4]}</div>
+</div>
 {/section}
 
-</table>
+</div>
 	  
 	  
 

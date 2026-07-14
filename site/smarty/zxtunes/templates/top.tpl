@@ -26,10 +26,24 @@
 <link rel="preload" href="/css/zxtunes.css?v={$css_v}" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/zxtunes.css?v={$css_v}"></noscript>
 {if $load_leaflet}
-<link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
-<link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""></noscript>
+<link rel="stylesheet" href="/css/leaflet/leaflet.css?v=1.9.4">
+<style>
+.page-authors-map .authors-map {
+	width: 100%;
+	height: min(70vh, 640px);
+	min-height: 360px;
+	border: 1px solid #dedbd8;
+	border-radius: 4px;
+	background: #f8f8f8;
+}
+@media (max-width: 768px) {
+	.page-authors-map .authors-map {
+		height: min(55vh, 420px);
+		min-height: 280px;
+	}
+}
+</style>
 {/if}
 
 <meta name="verify-v1" content="OlHdsBAsi/y17fbbfbH7yv5E4vWXtfwKbJOIuSaROVM=" />

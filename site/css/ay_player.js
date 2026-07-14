@@ -172,6 +172,33 @@ function decodeEntities(text) {
 	return ta.value;
 }
 
+function updateTrackMarquee() {
+	var name = document.getElementById("track_name");
+	if (!name) {
+		return;
+	}
+	var wrap = name.parentNode;
+	if (!wrap || !wrap.classList || !wrap.classList.contains("track_name_wrap")) {
+		return;
+	}
+	name.classList.remove("track_name--scroll");
+	name.style.removeProperty("--marquee-shift");
+	// Measure natural text width against the clip container.
+	name.style.display = "inline-block";
+	name.style.maxWidth = "none";
+	name.style.width = "max-content";
+	name.style.overflow = "visible";
+	var overflow = name.scrollWidth - wrap.clientWidth;
+	name.style.removeProperty("display");
+	name.style.removeProperty("max-width");
+	name.style.removeProperty("width");
+	name.style.removeProperty("overflow");
+	if (overflow > 4) {
+		name.style.setProperty("--marquee-shift", "-" + overflow + "px");
+		name.classList.add("track_name--scroll");
+	}
+}
+
 function updateTexts(track) {
 	var name = document.getElementById("track_name");
 	if (!name) {
@@ -184,6 +211,7 @@ function updateTexts(track) {
 	}
 	name.textContent = label;
 	document.title = label + " : ZXTunes";
+	updateTrackMarquee();
 }
 
 function fillBuffer(e) {
@@ -550,32 +578,6 @@ function toggleTime() {
 	updateProgress();
 }
 
-function showOptions() {
-	var el = document.getElementById("zx_ay_options");
-	if (el) {
-		el.style.display = "block";
-	}
-}
-
-function hideOptions() {
-	var el = document.getElementById("zx_ay_options");
-	if (el) {
-		el.style.display = "none";
-	}
-}
-
-function changeMixing(radio) {
-	chipMode = parseInt(radio.value, 10);
-	isYM = chipMode < 6;
-	if (ayumi) {
-		ayumi.setChip(isYM);
-	}
-	if (ayumi2) {
-		ayumi2.setChip(isYM);
-	}
-	updatePan();
-}
-
 function changeProgress(event) {
 	if (!song) {
 		return;
@@ -701,9 +703,14 @@ function readPlayerConfig() {
 function initAyPlayer() {
 	readPlayerConfig();
 	buildTrackIndex();
+	if (window.addEventListener) {
+		window.addEventListener("resize", updateTrackMarquee);
+	}
 	var trackId = getAutoplayTrackId();
 	if (trackId > 0) {
 		PlayB(trackId);
+	} else {
+		updateTrackMarquee();
 	}
 }
 

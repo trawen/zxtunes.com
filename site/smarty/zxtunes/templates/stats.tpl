@@ -16,44 +16,60 @@ On site: <b>{$authors[0]}</b> authors, <b>{$tunes[0]}</b> tunes, <b>{$photos[0]}
 <br><br>
 <H2>TOP 10</H2>
 
-<table width=100% border=0>
-<tr>
-<td colspan=3 style="font-size: 1.0em; padding-right: 8px; padding-bottom: 8px; padding-left: 4px;">{if $language eq 'rus'} Активные авторы{else}Active authors{/if}</td>
-<td colspan=3 style="font-size: 1.0em; padding-right: 8px; padding-bottom: 8px; padding-left: 4px;">{if $language eq 'rus'} Старейшие авторы{else}Oldest authors{/if}</td>
-<td colspan=3 style="font-size: 1.0em; padding-right: 8px; padding-bottom: 8px; padding-left: 4px;">{if $language eq 'rus'}Популярные редакторы{else} Popular editors{/if}</td>
-<td colspan=3 style="font-size: 1.0em; padding-bottom: 8px; padding-left: 4px;">{if $language eq 'rus'}Музыкальные города{else} Musical cities{/if}</td>
-</tr>
+<div class="zx-stats-cols">
 
+<div class="zx-stats-col">
+<div class="zx-stats-col__title">{if $language eq 'rus'}Активные авторы{else}Active authors{/if}</div>
 {section name=n loop=$bytunes}
 {cycle values=""}
-<tr>
-<td align=center><b>{$bytunes[n].nm}.</b></td>
-<td><A class=m href="{$bytunes[n].id|aurl}">{$bytunes[n].nickname}</a></td>
-<td>{$bytunes[n].num_tracks} 
-<span class=d>{if $language eq 'rus'}треков{else}tunes{/if}</span></td>
-
-<td align=center><b>{$bytunes[n].nm}.</b></td>
-<td><A class=m href="{$byyears[n].id|aurl}">{$byyears[n].nickname}</a></td>
-<td>{$byyears[n][4]} 
-<span class=d>{if $language eq 'rus'}лет{else}years{/if}</span></td>
-
-<td align=center><b>{$bytunes[n].nm}.</b></td>
-<td>{if $types[n].lnk}<A class=m href="/software.php?id={$types[n].lnk}">{$types[n].type}</a>
-{else}<b>{$types[n].type}</b>{/if}
-</td>
-<td>{$types[n].kl} 
-<span class=d>{if $language eq 'rus'}треков{else}tunes{/if}</span></td>
-
-<td align=center><b>{$bytunes[n].nm}.</b></td>
-<td><A class=m href="/authors_list.php?order=city&sr={if $language eq 'rus'}{$bycity[n].city}{else}{$bycity[n].city_en}{/if}">
-{if $language eq 'rus'}{$bycity[n].city}{else}{$bycity[n].city_en}{/if}</a></td>
-<td>{$bycity[n][1]} 
-<span class=d>{if $language eq 'rus'}авторов{else}authors{/if}</span></td>
-
-
-<tr>
+<div class="zx-stats-col__row">
+<span><b>{$bytunes[n].nm}.</b></span>
+<span><A class=m href="{$bytunes[n].id|aurl}">{$bytunes[n].nickname}</a></span>
+<span>{$bytunes[n].num_tracks} 
+<span class=d>{if $language eq 'rus'}треков{else}tunes{/if}</span></span>
+</div>
 {/section}
-</table>
+</div>
+
+<div class="zx-stats-col">
+<div class="zx-stats-col__title">{if $language eq 'rus'}Старейшие авторы{else}Oldest authors{/if}</div>
+{section name=n loop=$byyears}
+<div class="zx-stats-col__row">
+<span><b>{$smarty.section.n.iteration}.</b></span>
+<span><A class=m href="{$byyears[n].id|aurl}">{$byyears[n].nickname}</a></span>
+<span>{$byyears[n][4]} 
+<span class=d>{if $language eq 'rus'}лет{else}years{/if}</span></span>
+</div>
+{/section}
+</div>
+
+<div class="zx-stats-col">
+<div class="zx-stats-col__title">{if $language eq 'rus'}Популярные редакторы{else}Popular editors{/if}</div>
+{section name=n loop=$types max=10}
+<div class="zx-stats-col__row">
+<span><b>{$smarty.section.n.iteration}.</b></span>
+<span>{if $types[n].lnk}<A class=m href="/software.php?id={$types[n].lnk}">{$types[n].type}</a>
+{else}<b>{$types[n].type}</b>{/if}</span>
+<span>{$types[n].kl} 
+<span class=d>{if $language eq 'rus'}треков{else}tunes{/if}</span></span>
+</div>
+{/section}
+</div>
+
+<div class="zx-stats-col">
+<div class="zx-stats-col__title">{if $language eq 'rus'}Музыкальные города{else}Musical cities{/if}</div>
+{section name=n loop=$bycity}
+<div class="zx-stats-col__row">
+<span><b>{$smarty.section.n.iteration}.</b></span>
+<span><A class=m href="/authors_list.php?order=city&sr={if $language eq 'rus'}{$bycity[n].city}{else}{$bycity[n].city_en}{/if}">
+{if $language eq 'rus'}{$bycity[n].city}{else}{$bycity[n].city_en}{/if}</a></span>
+<span>{$bycity[n][1]} 
+<span class=d>{if $language eq 'rus'}авторов{else}authors{/if}</span></span>
+</div>
+{/section}
+</div>
+
+</div>
 
 
 
@@ -107,4 +123,5 @@ year - Young users even more often prefer a spectrum modern prefixes NES and Seg
 
       	  
 {include file="right_strip.tpl"}
+
 {include file="footer.tpl"}

@@ -32,166 +32,180 @@
 </section>
 
 <script type="application/json" id="authors-map-data">{$map_points_json}</script>
-<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script defer type="text/javascript">
+<script src="/js/leaflet/leaflet.js?v=1.9.4"></script>
+<script type="text/javascript">
 {literal}
 (function () {
-	var dataEl = document.getElementById('authors-map-data');
-	var points = [];
-	if (dataEl) {
-		try {
-			points = JSON.parse(dataEl.textContent);
-		} catch (e) {
-			points = [];
+	function initAuthorsMap() {
+		var dataEl = document.getElementById('authors-map-data');
+		var points = [];
+		if (dataEl) {
+			try {
+				points = JSON.parse(dataEl.textContent);
+			} catch (e) {
+				points = [];
+			}
 		}
-	}
-	var lang = '{/literal}{if $language eq 'rus'}rus{else}eng{/if}{literal}';
-	var mapEl = document.getElementById('authors-map');
-	if (!mapEl || !window.L || !points.length) {
-		return;
-	}
-
-	var map = L.map('authors-map', {
-		worldCopyJump: true,
-		scrollWheelZoom: true
-	});
-
-	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		maxZoom: 18,
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-	}).addTo(map);
-
-	var maxCount = 1;
-	for (var i = 0; i < points.length; i++) {
-		if (points[i].count > maxCount) {
-			maxCount = points[i].count;
+		var lang = '{/literal}{if $language eq 'rus'}rus{else}eng{/if}{literal}';
+		var mapEl = document.getElementById('authors-map');
+		if (!mapEl || !window.L || !points.length) {
+			return;
 		}
-	}
-
-	function radiusForCount(count) {
-		var radius = 4 + Math.sqrt(count / maxCount) * 22;
-		if (count === 1) {
-			radius *= 0.5;
+		if (mapEl.getAttribute('data-map-ready') === '1') {
+			return;
 		}
-		return radius;
-	}
+		mapEl.setAttribute('data-map-ready', '1');
 
-	function intensityForCount(count) {
-		if (count === 1) {
-			return 0;
+		var map = L.map(mapEl, {
+			worldCopyJump: true,
+			scrollWheelZoom: true
+		});
+
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		}).addTo(map);
+
+		var maxCount = 1;
+		for (var i = 0; i < points.length; i++) {
+			if (points[i].count > maxCount) {
+				maxCount = points[i].count;
+			}
 		}
-		return Math.sqrt(count / maxCount);
-	}
 
-	function hexToRgb(hex) {
-		var n = parseInt(hex.slice(1), 16);
-		return [n >> 16, (n >> 8) & 255, n & 255];
-	}
-
-	function rgbToHex(r, g, b) {
-		return '#' + [r, g, b].map(function (channel) {
-			var hex = Math.round(channel).toString(16);
-			return hex.length === 1 ? '0' + hex : hex;
-		}).join('');
-	}
-
-	function mixColor(from, to, t) {
-		var a = hexToRgb(from);
-		var b = hexToRgb(to);
-		return rgbToHex(
-			a[0] + (b[0] - a[0]) * t,
-			a[1] + (b[1] - a[1]) * t,
-			a[2] + (b[2] - a[2]) * t
-		);
-	}
-
-	function colorForCount(count) {
-		return mixColor('#6d8299', '#2f3d52', intensityForCount(count));
-	}
-
-	function strokeForCount(count) {
-		return mixColor('#556a82', '#1f2835', intensityForCount(count));
-	}
-
-	function fillOpacityForCount(count) {
-		return 0.72 + intensityForCount(count) * 0.23;
-	}
-
-	function cityLabel(p) {
-		if (lang === 'rus') {
-			return p.city_ru || p.city_en;
+		function radiusForCount(count) {
+			var radius = 4 + Math.sqrt(count / maxCount) * 22;
+			if (count === 1) {
+				radius *= 0.5;
+			}
+			return radius;
 		}
-		return p.city_en || p.city_ru;
-	}
 
-	function countryLabel(p) {
-		if (lang === 'rus') {
-			return p.country_ru || p.country_en;
+		function intensityForCount(count) {
+			if (count === 1) {
+				return 0;
+			}
+			return Math.sqrt(count / maxCount);
 		}
-		return p.country_en || p.country_ru;
-	}
 
-	function musiciansWord(n) {
-		if (lang !== 'rus') {
-			return n === 1 ? 'musician' : 'musicians';
+		function hexToRgb(hex) {
+			var n = parseInt(hex.slice(1), 16);
+			return [n >> 16, (n >> 8) & 255, n & 255];
 		}
-		var mod10 = n % 10;
-		var mod100 = n % 100;
-		if (mod10 === 1 && mod100 !== 11) {
-			return 'музыкант';
+
+		function rgbToHex(r, g, b) {
+			return '#' + [r, g, b].map(function (channel) {
+				var hex = Math.round(channel).toString(16);
+				return hex.length === 1 ? '0' + hex : hex;
+			}).join('');
 		}
-		if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
-			return 'музыканта';
+
+		function mixColor(from, to, t) {
+			var a = hexToRgb(from);
+			var b = hexToRgb(to);
+			return rgbToHex(
+				a[0] + (b[0] - a[0]) * t,
+				a[1] + (b[1] - a[1]) * t,
+				a[2] + (b[2] - a[2]) * t
+			);
 		}
-		return 'музыкантов';
-	}
 
-	var bounds = [];
-
-	for (var j = 0; j < points.length; j++) {
-		var point = points[j];
-		var latLng = [point.lat, point.lng];
-		bounds.push(latLng);
-
-		var city = cityLabel(point);
-		var country = countryLabel(point);
-		var listCity = lang === 'rus' ? (point.city_ru || point.city_en) : (point.city_en || point.city_ru);
-		var href = '/authors_list.php?letter=ALL&order=city&up=ASC&sr=' + encodeURIComponent(listCity);
-
-		var popup = '<div class="authors-map-popup">'
-			+ '<strong>' + city + '</strong>'
-			+ (country ? '<br><span class="authors-map-popup__country">' + country + '</span>' : '')
-			+ '<br>' + point.count + ' ' + musiciansWord(point.count)
-			+ '<br><a href="' + href + '">' + (lang === 'rus' ? 'Список музыкантов' : 'Musicians list') + '</a>'
-			+ '</div>';
-
-		L.circleMarker(latLng, {
-			radius: radiusForCount(point.count),
-			fillColor: colorForCount(point.count),
-			color: strokeForCount(point.count),
-			weight: 1.2,
-			opacity: 0.95,
-			fillOpacity: fillOpacityForCount(point.count)
-		}).bindPopup(popup).addTo(map);
-	}
-
-	function setMapView() {
-		if (bounds.length) {
-			map.setView(L.latLngBounds(bounds).getCenter(), 4.5);
-		} else {
-			map.setView([30, 20], 1);
+		function colorForCount(count) {
+			return mixColor('#6d8299', '#2f3d52', intensityForCount(count));
 		}
-	}
 
-	setMapView();
+		function strokeForCount(count) {
+			return mixColor('#556a82', '#1f2835', intensityForCount(count));
+		}
 
-	window.addEventListener('resize', function () {
-		map.invalidateSize();
-	});
-	setTimeout(function () {
-		map.invalidateSize();
+		function fillOpacityForCount(count) {
+			return 0.72 + intensityForCount(count) * 0.23;
+		}
+
+		function cityLabel(p) {
+			if (lang === 'rus') {
+				return p.city_ru || p.city_en;
+			}
+			return p.city_en || p.city_ru;
+		}
+
+		function countryLabel(p) {
+			if (lang === 'rus') {
+				return p.country_ru || p.country_en;
+			}
+			return p.country_en || p.country_ru;
+		}
+
+		function musiciansWord(n) {
+			if (lang !== 'rus') {
+				return n === 1 ? 'musician' : 'musicians';
+			}
+			var mod10 = n % 10;
+			var mod100 = n % 100;
+			if (mod10 === 1 && mod100 !== 11) {
+				return 'музыкант';
+			}
+			if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+				return 'музыканта';
+			}
+			return 'музыкантов';
+		}
+
+		var bounds = [];
+
+		for (var j = 0; j < points.length; j++) {
+			var point = points[j];
+			var latLng = [point.lat, point.lng];
+			bounds.push(latLng);
+
+			var city = cityLabel(point);
+			var country = countryLabel(point);
+			var listCity = lang === 'rus' ? (point.city_ru || point.city_en) : (point.city_en || point.city_ru);
+			var href = '/authors_list.php?letter=ALL&order=city&up=ASC&sr=' + encodeURIComponent(listCity);
+
+			var popup = '<div class="authors-map-popup">'
+				+ '<strong>' + city + '</strong>'
+				+ (country ? '<br><span class="authors-map-popup__country">' + country + '</span>' : '')
+				+ '<br>' + point.count + ' ' + musiciansWord(point.count)
+				+ '<br><a href="' + href + '">' + (lang === 'rus' ? 'Список музыкантов' : 'Musicians list') + '</a>'
+				+ '</div>';
+
+			L.circleMarker(latLng, {
+				radius: radiusForCount(point.count),
+				fillColor: colorForCount(point.count),
+				color: strokeForCount(point.count),
+				weight: 1.2,
+				opacity: 0.95,
+				fillOpacity: fillOpacityForCount(point.count)
+			}).bindPopup(popup).addTo(map);
+		}
+
+		function setMapView() {
+			if (bounds.length) {
+				map.setView(L.latLngBounds(bounds).getCenter(), 4.5);
+			} else {
+				map.setView([30, 20], 1);
+			}
+		}
+
 		setMapView();
-	}, 150);
+		map.invalidateSize();
+
+		window.addEventListener('resize', function () {
+			map.invalidateSize();
+		});
+		[50, 250, 800].forEach(function (ms) {
+			setTimeout(function () {
+				map.invalidateSize();
+			}, ms);
+		});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initAuthorsMap);
+	} else {
+		initAuthorsMap();
+	}
 })();
 {/literal}
 </script>

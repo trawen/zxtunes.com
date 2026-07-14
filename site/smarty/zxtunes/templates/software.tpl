@@ -1,9 +1,10 @@
 ﻿{include file="menu.tpl"}
  
 
-	<table valign=bottom border=0 width=100% style="padding-bottom: 8px;"><tr><td valign=bottom><H3>
-	{if $language eq 'rus'}Софт {else}Software {/if}&#160 
-	
+	<div class="zx-soft-page__head">
+	<h3 class="zx-toolbar__title">
+	{if $language eq 'rus'}Софт {else}Software {/if}&#160
+
 	<div class="selector" style="DISPLAY: inline; FONT-SIZE: 0.9em;">
 	<a {$mode[1]} href="{$sel_link}?md=1">{if $language eq 'rus'}редакторы{else}editors {/if}</a>
 	<a {$mode[2]} href="{$sel_link}?md=2">{if $language eq 'rus'}проигрыватели{else}players{/if}</a>
@@ -11,40 +12,34 @@
 	<a {$mode[0]} href="{$sel_link}?md=0">{if $language eq 'rus'}всё{else}all{/if}</a>
     </div>
 	</h3>
-	</td>
-	<td align=right>
-	
-	
-	
-<table border=0 align=right><tr><td style='padding: 6px; border: 1px solid #eeebe8;'>
 
-<table width=100% border=0 cellpadding=0 cellspacing=0 valign=bottom><tr><td>
+	<div class="zx-meta-box">
+
+	<div class="zx-meta-box__row">
 <span class="dd">
-{if $language eq 'rus'}просмотров{else}views{/if}</span></td><td style='padding-left: 4px;'>
+{if $language eq 'rus'}просмотров{else}views{/if}</span>
  {$sf.views}
- </td></tr>
- 
-<tr><td>
-<div nowrap><span class="dd">
-{if $language eq 'rus'}обновление{else}last update{/if}</span></td><td style='padding-left: 4px;'>
- {$sf.update_}</div>
- </td></tr></table>
+ </div>
 
-</td></tr></table>
-	
-	
-	</td>
-	</tr></table>
-	
+	<div class="zx-meta-box__row">
+<span class="dd">
+{if $language eq 'rus'}обновление{else}last update{/if}</span>
+ {$sf.update_}
+ </div>
+
+	</div>
+	</div>
+
 
 	
-<table border=0 cellspacing='1' cellpadding='2'><tr><td valign=top><div style='float: left;'><table><tr><td>
+<div class="zx-soft-page__body">
+<div class="zx-soft-page__media">
 
 {$soft_images}
 
-</td><td> </td></tr></table></div>
+</div>
 
-{if !$soft_article} <div style='float: right;'> {/if}
+<div class="zx-soft-page__main">
 
 <h3 class="roundedbox">{$sf.title} 
 {if $sf.version} <div style="COLOR: #373737; DISPLAY: inline;"> version {$sf.version}</div> {/if} 
@@ -56,12 +51,13 @@
 
 {section name=n loop=$sz}
 {cycle values=""}
-<table cellpadding=0 cellspacing=0 border=0><tr><td>
-<img src='css/dsk.png'></td><td style='padding-left: 8px;'><div class="soft_copyright"><a style='COLOR: #0063b0;' href='downloads.php?id={$sz[n].id_file}&md=software'><b>{$sf.title}{if $sf.version} {$sf.version}{/if}.zip</b></a> <span style="FONT-SIZE: 0.9em;">{$sz[n].feature} ({$sz[n].system} / {$sz[n].size}Kb)</span></div></td></tr>
-
-<tr><td></td><td valign=top style='padding-top: 2px;'><span valign=top class="dd" style='padding-left: 8px;'>
+<div class="zx-soft-dl">
+<img src='css/dsk.png'>
+<div class="soft_copyright"><a style='COLOR: #0063b0;' href='downloads.php?id={$sz[n].id_file}&md=software'><b>{$sf.title}{if $sf.version} {$sf.version}{/if}.zip</b></a> <span style="FONT-SIZE: 0.9em;">{$sz[n].feature} ({$sz[n].system} / {$sz[n].size}Kb)</span></div>
+<div class="zx-soft-dl__meta"><span class="dd">
 {if $language eq 'rus'}скачиваний{else}downloads{/if}</span> {$sz[n].downloads}
-</td></tr></table>
+</div>
+</div>
 {/section}
 
 {/if}
@@ -73,16 +69,10 @@
 
 
 
-
-
-
-
-
-
 <br><br><div align='justify' style="FONT-SIZE: 1.1em;">{$soft_article}</div>
-{if !$soft_article} </div> {/if}
 
-</td></tr></table>
+</div>
+</div>
 	
 	  
 	  

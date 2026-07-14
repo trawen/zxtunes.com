@@ -30,16 +30,14 @@ Or simply wish to contact the author of the project?<br><br>
 
 	  
 
-<table>
-<form method="POST" action="sendinfo.php" enctype='multipart/form-data'>
+<form class="zx-form" method="POST" action="sendinfo.php" enctype='multipart/form-data'>
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
-{if $ert}<tr><td></td><td style="COLOR: red;">{$ert}<br></td></tr>{/if}
+{if $ert}<div class="zx-form__row" style="COLOR: red;"><div></div><div>{$ert}<br></div></div>{/if}
 
-
-
-
-<tr><td valign=top><b>{if $language eq 'rus'}автор ремикса{else}remix author{/if}: </b>*</td><td>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}автор ремикса{else}remix author{/if}: *</div>
+<div>
 <select name="author_rmx_select">
 <option value="">—</option>
 {section name=n loop=$rmx_author}
@@ -48,19 +46,24 @@ Or simply wish to contact the author of the project?<br><br>
 {/section}
 </select>
 
-<input type="text" name="user_name" value="{$user_name}" maxlength="64" size="20"></td></tr>
+<input type="text" name="user_name" value="{$user_name}" maxlength="64" size="20"></div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}автор оригинала{else}original author{/if}:</b></td><td>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}автор оригинала{else}original author{/if}:</div>
+<div>
 <select name="author_org_select">
 {section name=n loop=$org_author}
 {cycle values=""}
 <option value="{$org_author[n].id}">{$org_author[n].name}</option>
 {/section}
 </select>
+</div>
+</div>
 
-</td></tr>
-
-<tr><td valign=top><b>{if $language eq 'rus'}год ремикса{else}remix year{/if}:</b></td><td>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}год ремикса{else}remix year{/if}:</div>
+<div>
 <select name="remix_year">
 <option value="0">—</option> 
 <option value="2009">2009</option>
@@ -79,33 +82,36 @@ Or simply wish to contact the author of the project?<br><br>
 <option value="1996">1996</option>
 <option value="1995">1995</option>
 </select>
-</td></tr>
+</div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}оригинальный AY трек{else}original AY tune{/if}:</b></td><td>
-<input type="text" name="user_site" value="{$user_site}" maxlength="64" size="20"></td></tr>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}оригинальный AY трек{else}original AY tune{/if}:</div>
+<div><input type="text" name="user_site" value="{$user_site}" maxlength="64" size="20"></div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}комментарий{else}comment{/if}: </b>*</td>
-<td><input type="text" name="user_site" value="{$user_site}" maxlength="64" size="20"></td></tr>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}комментарий{else}comment{/if}: *</div>
+<div><input type="text" name="user_site" value="{$user_site}" maxlength="64" size="20"></div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}файл</b>{else}file</b>{/if}: **</td>
-<td><input type='file' name='file'></td></tr>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}файл{else}file{/if}: **</div>
+<div><input type='file' name='file'></div>
+</div>
 
+<div class="zx-form__row">
+<div><img src="confirm_code.php?cc={$cc}" alt="" title="">*</div>
+<div><input type="text" class="post" style="width: 90px" name="confirm_code" size="6" maxlength="6" value="">&nbsp&nbsp&nbsp<input type="submit" name="submit" value="{if $language eq 'rus'}отправить{else}submit{/if}"></div>
+</div>
 
+<div class="zx-form__hint">* <b>- {if $language eq 'rus'}обязательно{else}necessarily{/if}</b></div>
+<div class="zx-form__hint">** <b>- {if $language eq 'rus'}до 16 мегабайт{else}up to 16Mb{/if}</b></div>
 
-
-
-<tr>
-<td><img src="confirm_code.php?cc={$cc}" alt="" title="">*</td><td>
-<input type="text" class="post" style="width: 90px" name="confirm_code" size="6" maxlength="6" value="">&nbsp&nbsp&nbsp<input type="submit" name="submit" value="{if $language eq 'rus'}отправить{else}submit{/if}"></td>
-</tr>
-<tr><td></td><td colspan=2><br>* <b>- {if $language eq 'rus'}обязательно{else}necessarily{/if}</b></td></tr>
-<tr><td></td><td colspan=2><br>** <b>- {if $language eq 'rus'}до 16 мегабайт{else}up to 16Mb{/if}</b></td></tr>
 <input type="hidden" name="mode" value="informer">
 <input type="hidden" name="confirm_id" value="{$cc}">
 
-
 </form>
-</table>
 	  
 	  
 	  

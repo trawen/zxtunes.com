@@ -11,33 +11,33 @@
 
 <br><br>
 
-<table>
+<div class="zx-data-grid zx-data-grid--ay-remix">
 
-<tr>
-<td>№</td>
-<td>Исполнитель</td>
-<td>Ремиксы</td>
-<td>Просмотры</td>
-<td>Обновления</td>
-</tr>
+<div class="zx-data-grid__row zx-data-grid__row--head">
+<div class="zx-data-grid__cell">№</div>
+<div class="zx-data-grid__cell">Исполнитель</div>
+<div class="zx-data-grid__cell">Ремиксы</div>
+<div class="zx-data-grid__cell">Просмотры</div>
+<div class="zx-data-grid__cell">Обновления</div>
+</div>
 
 
 {section name=n loop=$remixes}
 
-{if $remixes[n].show_lit}<tr><td colspan=10>&nbsp;</td></tr>{/if}
+{if $remixes[n].show_lit}<div class="zx-data-grid__row"><div class="zx-data-grid__cell">&nbsp;</div><div class="zx-data-grid__cell">&nbsp;</div><div class="zx-data-grid__cell">&nbsp;</div><div class="zx-data-grid__cell">&nbsp;</div><div class="zx-data-grid__cell">&nbsp;</div></div>{/if}
 
-<tr>
-<td style="text-transform: uppercase"><b>{if $remixes[n].show_lit}{$remixes[n].lit}{else}&nbsp;{/if}</b></td>
-<td><a class=m href="ay_remixes_play.php?id={$remixes[n].rfr_id}">{$remixes[n].rfr_article}{$remixes[n].rfr_name_ru}</a></td>
-<td align="center">{$remixes[n].rfr_num_tunes}</td>
-<td align="center">{$remixes[n].rfr_views}</td>
-<td align="center">{$remixes[n].rfr_update}</td>
-</tr>
+<div class="zx-data-grid__row">
+<div class="zx-data-grid__cell" style="text-transform: uppercase"><b>{if $remixes[n].show_lit}{$remixes[n].lit}{else}&nbsp;{/if}</b></div>
+<div class="zx-data-grid__cell"><a class=m href="ay_remixes_play.php?id={$remixes[n].rfr_id}">{$remixes[n].rfr_article}{$remixes[n].rfr_name_ru}</a></div>
+<div class="zx-data-grid__cell">{$remixes[n].rfr_num_tunes}</div>
+<div class="zx-data-grid__cell">{$remixes[n].rfr_views}</div>
+<div class="zx-data-grid__cell">{$remixes[n].rfr_update}</div>
+</div>
 
 
 
 {/section}
-</table>
+</div>
 
 
 

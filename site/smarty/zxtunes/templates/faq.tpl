@@ -6,47 +6,14 @@
 
 
 
-{*<table valign=bottom border=0 width=100%><tr><td valign=bottom>*}
 <H3>{if $language eq 'rus'}ЧАВО {else}FAQ{/if}</H3>
-{*</td>
-<td align=right>
-	
-	
-	
-<table border=0 align=right><tr><td style='padding: 6px; border: 1px solid #eeebe8;'>
 
-<table width=100% border=0 cellpadding=0 cellspacing=0 valign=bottom><tr><td>
-<span class="dd">
-{if $language eq 'rus'}просмотров{else}views{/if}</span></td><td style='padding-left: 4px;'>
- {$faq.faq_views}
- </td></tr>
- 
-<tr><td>
-<div nowrap><span class="dd">
-{if $language eq 'rus'}обновление{else}last update{/if}</span></td><td style='padding-left: 4px;'>
- {$faq.faq_update}</div>
- </td></tr></table>
+<div class="zx-faq">
 
-</td></tr></table>
-	
-	
-</td>
-</tr></table>
-*}
-
-
-
-
-
-
-
-
-<table width=100%><tr>
-<td style="FONT-SIZE: 1.2em;">1.</td><td style="FONT-SIZE: 1.2em;">{if $language eq 'rus'}О проекте{else}About project{/if}</td></tr>
-
-<tr>
-<td></td><td>
-<div style="FONT-SIZE: 1.3em; padding-top: 4px;">
+<div class="zx-faq__item">
+<div>1.</div>
+<div>{if $language eq 'rus'}О проекте{else}About project{/if}</div>
+<div class="zx-faq__body">
 {if $language eq 'rus'}
 <b>ZXTUNES</b> - это крупнейшая в мире коллекция музыки для компьютера ZX Spectrum.
 Основное внимание в коллекции уделено «чиповой» музыке, музыке написанной под музыкальный сопроцессор спектрума
@@ -59,42 +26,37 @@
 As one-bit music is presented to collections under <b>Beeper</b> and 8-bit, so-named <b> Digital </b> music also. <br><br>
 And still ZXTUNES it is a huge <a class=d2 href="authors_list.php">database</a> on zx spectrum musicians.
 {/if}
-</div><br><br></td></tr>
+</div>
+</div>
 
-
-
-<td style="FONT-SIZE: 1.2em;">2.</td><td style="FONT-SIZE: 1.2em;">{if $language eq 'rus'}Прослушивание музыки{else}Listening of music{/if}</td></tr>
-
-<tr>
-<td></td><td>
-<div style="FONT-SIZE: 1.3em; padding-top: 4px;">
+<div class="zx-faq__item">
+<div>2.</div>
+<div>{if $language eq 'rus'}Прослушивание музыки{else}Listening of music{/if}</div>
+<div class="zx-faq__body">
 {if $language eq 'rus'}
  Музыку с сайта <b>ZXTUNES</b> можно слушать в простом и удобном проигрывателе <a class=d2 href="/software.php?id=20">ZX Spectrum Sound Chip Emulator</a>.
 {else}
 To play music downloaded from <b>ZXTUNES</b>, you can use simple and convenient the <a class=d2 href="/software.php?id=20">ZX Spectrum Sound Chip Emulator</a>.
 {/if}
-</div><br><br></td></tr>
+</div>
+</div>
 
-
-	  
-<td style="FONT-SIZE: 1.2em;">3.</td><td style="FONT-SIZE: 1.2em;">{if $language eq 'rus'}Скачивание файлов{else}Downloads{/if}</td></tr>
-
-<tr>
-<td></td><td>
-<div style="FONT-SIZE: 1.3em; padding-top: 4px;">
+<div class="zx-faq__item">
+<div>3.</div>
+<div>{if $language eq 'rus'}Скачивание файлов{else}Downloads{/if}</div>
+<div class="zx-faq__body">
 {if $language eq 'rus'}
 Докачка и скачивание файлов в несколько потоков не поддерживается.
 {else}
 Downloading in some threads is not supported.
 {/if}
-</div><br><br></td></tr>
-	  
-	  
-<td style="FONT-SIZE: 1.2em;">4.</td><td style="FONT-SIZE: 1.2em;">{if $language eq 'rus'}Правовая информация{else}Disclaimer{/if}</td></tr>
+</div>
+</div>
 
-<tr>
-<td></td><td>
-<div style="FONT-SIZE: 1.3em; padding-top: 4px;">
+<div class="zx-faq__item">
+<div>4.</div>
+<div>{if $language eq 'rus'}Правовая информация{else}Disclaimer{/if}</div>
+<div class="zx-faq__body">
 {if $language eq 'rus'}
 Права на музыку принадлежат только ее авторам. Если вы желаете использовать музыку с сайта <b>ZXTUNES</b> в коммерческих целях, обязательно свяжитесь с ее автором или <a class=d2 href="informer.php">администрацией</a> сайта. 
 
@@ -102,43 +64,37 @@ Downloading in some threads is not supported.
 To use tunes, downloaded from ZXTUNES, for commercial purposes,
 you should get explicit permission from their respective composers or <a class=d2 href="informer.php">site admin</a>.
 {/if}
-</div><br><br></td></tr>
- 
- 
-<td style="FONT-SIZE: 1.2em;">5.</td><td style="FONT-SIZE: 1.2em;">{if $language eq 'rus'}Авторство{else}Credits{/if}</td></tr>
+</div>
+</div>
 
-<tr>
-<td></td><td>
-<div style="FONT-SIZE: 1.3em; padding-top: 4px;">
+<div class="zx-faq__item">
+<div>5.</div>
+<div>{if $language eq 'rus'}Авторство{else}Credits{/if}</div>
+<div class="zx-faq__body">
 {if $language eq 'rus'}
 Идея, разработка и поддержка проекта <b>ZXTUNES</b> - <b>Newart</b> (<b>Калинин Вячеслав</b>).
 {else}
 Idea, development and support of the project <b>ZXTUNES</b> - <b>Newart</b> (<b>Vyacheslav Kalinin</b>).
 {/if}
-</div><br><br></td></tr>
-  
-  
-<td style="FONT-SIZE: 1.2em;">6.</td><td style="FONT-SIZE: 1.2em;">{if $language eq 'rus'}Технологии{else}Technologies{/if}</td></tr>
+</div>
+</div>
 
-<tr>
-<td></td><td>
-<div style="FONT-SIZE: 1.3em; padding-top: 4px;">
+<div class="zx-faq__item">
+<div>6.</div>
+<div>{if $language eq 'rus'}Технологии{else}Technologies{/if}</div>
+<div class="zx-faq__body">
 {if $language eq 'rus'}
 Код сайта написан на <b>PHP + MySQL + Smarty template engine</b>.
 {else}
 The code of a site is written on <b>PHP + MySQL + Smarty template engine</b>.
 {/if}
-</div><br><br></td></tr>
+</div>
+</div>
 
-
-
-
-   
-<td style="FONT-SIZE: 1.2em;">7.</td><td style="FONT-SIZE: 1.2em;">{if $language eq 'rus'}Благодарности{else}Thanks{/if}</td></tr>
-
-<tr>
-<td></td><td>
-<div style="FONT-SIZE: 1.3em; padding-top: 4px;">
+<div class="zx-faq__item">
+<div>7.</div>
+<div>{if $language eq 'rus'}Благодарности{else}Thanks{/if}</div>
+<div class="zx-faq__body">
 {if $language eq 'rus'}
 За отличный хостинг - <b>untergrund.net</b><br><br>
 
@@ -164,8 +120,10 @@ For music and the information on musicians: <b>Striker</b>, <b>AAA</b>, <b>Serge
  
 And certainly huge gratitude all spectrum mans to musicians for your music and that you are!! :)
 {/if}
-</div><br><br></td></tr>
-</table>
+</div>
+</div>
+
+</div>
 
 
 <a name="question"></a>
@@ -175,43 +133,47 @@ And certainly huge gratitude all spectrum mans to musicians for your music and t
 
 	  
 
-<table>
-<form method="POST" action="sendinfo.php">
+<form class="zx-form" method="POST" action="sendinfo.php">
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
-{if $ert}<tr><td></td><td style="COLOR: red;">{$ert}<br></td></tr>{/if}
+{if $ert}<div class="zx-form__row" style="COLOR: red;"><div></div><div>{$ert}<br></div></div>{/if}
 
+<div class="zx-form__row">
+<div></div>
+<div style="FONT-SIZE: 1.4em;"><b>{if $language eq 'rus'}- Есть вопрос?{else}- Have A Question?{/if}</b></div>
+</div>
 
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}имя{else}name{/if}: *</div>
+<div><input type="text" name="user_name" value="{$user_name}" maxlength="32" size="20"></div>
+</div>
 
-<tr><td></td><td valign=top><div style="FONT-SIZE: 1.4em;"> 
-<b>{if $language eq 'rus'}- Есть вопрос?{else}- Have A Question?{/if}</b></div><br></td><td>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}почта{else}e-mail{/if}:</div>
+<div><input type="text" name="user_email" value="{$user_email}" maxlength="32" size="20"></div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}имя{else}name{/if}: </b>*</td><td>
-<input type="text" name="user_name" value="{$user_name}" maxlength="32" size="20"></td></tr>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}сайт{else}site{/if}:</div>
+<div><input type="text" name="user_site" value="{$user_site}" maxlength="32" size="20"></div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}почта{else}e-mail{/if}:</b></td><td>
-<input type="text" name="user_email" value="{$user_email}" maxlength="32" size="20"></td></tr>
+<div class="zx-form__row">
+<div class="zx-form__label">{if $language eq 'rus'}сообщение{else}message{/if}: *</div>
+<div><textarea type="text" name="message" cols="65" rows="5" style="font-family: arial; font-size: 11px">{$message}</textarea></div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}сайт{else}site{/if}:</b></td><td>
-<input type="text" name="user_site" value="{$user_site}" maxlength="32" size="20"></td></tr>
+<div class="zx-form__row">
+<div><img src="confirm_code.php?cc={$cc}" alt="" title="">*</div>
+<div><input type="text" class="post" style="width: 90px" name="confirm_code" size="6" maxlength="6" value="">&nbsp&nbsp&nbsp<input type="submit" name="submit" value="{if $language eq 'rus'}отправить{else}submit{/if}"></div>
+</div>
 
-<tr><td valign=top><b>{if $language eq 'rus'}сообщение{else}message{/if}: </b>*</td>
-<td><textarea type="text" name="message" cols="65" rows="5" style="font-family: arial; font-size: 11px">{$message}</textarea></td></tr>
+<div class="zx-form__hint">* <b>- {if $language eq 'rus'}обязательно{else}necessarily{/if}</b></div>
 
-
-
-
-
-<tr>
-<td><img src="confirm_code.php?cc={$cc}" alt="" title="">*</td><td>
-<input type="text" class="post" style="width: 90px" name="confirm_code" size="6" maxlength="6" value="">&nbsp&nbsp&nbsp<input type="submit" name="submit" value="{if $language eq 'rus'}отправить{else}submit{/if}"></td>
-</tr>
-<tr><td></td><td colspan=2><br>* <b>- {if $language eq 'rus'}обязательно{else}necessarily{/if}</b></td></tr>
 <input type="hidden" name="confirm_id" value="{$cc}">
 <input type="hidden" name="mode" value="faq">
 
 </form>
-</table>
 	  
 
      	  

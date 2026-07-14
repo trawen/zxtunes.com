@@ -173,31 +173,25 @@
 
 
 <br><br>
-<table style="padding-left:4 px;" border=0>
+<div class="zx-feed">
 {section name=n loop=$news}
 {cycle values=""}
-<tr>
-<td rowspan="2" valign=top align=left width=1% style="padding-right: 8px;">
-<table><tr><td style="padding: 4px; border: 1px solid #e0e0e0; COLOR: #909090;" >{$news[n].nm}</td></tr></table></td>
-<td valign=bottom align=left><div style="FONT-SIZE: 1.3em;"><b>
+<div class="zx-feed-item">
+<div class="zx-feed-item__badge">{$news[n].nm}</div>
+<div class="zx-feed-item__head">
+<div class="zx-feed-item__title">
 {if $language eq 'rus'}{$news[n].topic_rus}{else}{$news[n].topic_eng}{/if}
 </div>
-</td>
-<td align=right><span class=d>{$news[n].update}</span> | 
-<span class=d>{if $language eq 'rus'}добавил{else}posted by{/if}  <b>{$news[n].username}</b></span></td>
-</tr>
-
-<tr>
-<td valign=bottom style='border-top: 1px solid #dedbd8; padding-top: 4px;' colspan=2>
-<div align='justify' style="FONT-SIZE: 1.2em;" class=news>
+<div class="zx-feed-item__meta"><span class=d>{$news[n].update}</span> | 
+<span class=d>{if $language eq 'rus'}добавил{else}posted by{/if}  <b>{$news[n].username}</b></span></div>
+</div>
+<div class="zx-feed-item__body news">
 {if $language eq 'rus'}{$news[n].text_rus}{else}{$news[n].text_eng}{/if}<br><br>
-</div></td></tr>
-
-<tr><td valign=top colspan=3 align=right></td></tr>
-<tr><td><br></td></tr>
+</div>
+</div>
 {/section}
 
-</table>
+</div>
 
 
 

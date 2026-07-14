@@ -1,4 +1,6 @@
 ﻿{include file="menu.tpl"}
+
+<script type="text/javascript" src="css/jquery.js"></script>
  
 <script>
 {literal}
@@ -15,7 +17,6 @@ $(document).ready( function () {
 	$("#spam").html(spam);
 
 });
-
 
 
 
@@ -58,7 +59,6 @@ function validateEmpty() {
 </script> 
 {/literal}
 
-<center>
 {if $language eq 'rus'}
 	{if $error EQ 1}
 	<p style="color: red">Благодарствуем за поддержку!</p>
@@ -74,12 +74,10 @@ function validateEmpty() {
 {/if}
 
 
+<div class="zx-split">
 
-
-<table><td><td style="line-height: 18px" valign=middle>
-
-	
-<div style="font: normal 12px Arial; padding-left: 20px;">
+<div class="zx-split__panel">
+<div style="font: normal 12px Arial; padding-left: 20px; line-height: 18px;">
 {if $language eq 'rus'}
 
 <div style="font: normal 17px Verdana; letter-spacing: 2px">Обратная связь</div><br><br>  
@@ -100,18 +98,12 @@ Or simply wish to contact the author of the project?<br><br>
 
 {/if}
 </div>
-</td>
+</div>
 
+<div class="zx-split__sep"></div>
 
-
-<td width=80 align=center valign=top><br><br><br><div style="height: 250px; width: 1px; background-color: #EEE"></div></td>
-
-
-
-
-<td valign=top align=center><br><br>
-
-<form method="post" enctype="multipart/form-data" onsubmit="return validateEmpty('name', 'email', 'message')">
+<div class="zx-split__panel">
+<form class="zx-form-stack" method="post" enctype="multipart/form-data" onsubmit="return validateEmpty('name', 'email', 'message')">
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
 <b>
@@ -139,12 +131,9 @@ E-mail  <br> <input style="border: 1px solid #ccc; width: 220px"  name="email" t
 
 
 </form>
-</td>
-</tr>
-</table>
+</div>
 
-
-
+</div>
 
 
 

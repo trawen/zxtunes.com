@@ -369,6 +369,20 @@ if (!empty($row1['site'])) {
 
 
 
+$num_tracks = (int) ($row1['num_tracks'] ?? 0);
+if (($_SESSION['language'] ?? 'rus') === 'rus') {
+	$n10 = $num_tracks % 10;
+	$n100 = $num_tracks % 100;
+	if ($n10 === 1 && $n100 !== 11) {
+		$row1['num_tracks_label'] = 'трек';
+	} elseif ($n10 >= 2 && $n10 <= 4 && ($n100 < 10 || $n100 >= 20)) {
+		$row1['num_tracks_label'] = 'трека';
+	} else {
+		$row1['num_tracks_label'] = 'треков';
+	}
+} else {
+	$row1['num_tracks_label'] = ($num_tracks === 1) ? 'tune' : 'tunes';
+}
 $smarty->assign('author', $row1);
 $smarty->assign('author_url', zxtunes_author_url($row1));
 $smarty->assign('author_photo_url', zxtunes_author_photo_url($row1));
@@ -521,9 +535,8 @@ if ($md==1) {
  
 
   
-$sort = zxtunes_whitelist((string) ($sort ?? ''), ['rating', 'playing', 'year'], 'year');
-if ($sort === 'rating') {$ord = 'muzx_songs.rating';}
-elseif ($sort === 'playing') {$ord = 'muzx_songs.downloads';}
+$sort = zxtunes_whitelist((string) ($sort ?? ''), ['playing', 'year'], 'year');
+if ($sort === 'playing') {$ord = 'muzx_songs.downloads';}
 else {$ord = 'muzx_songs.year';}
 
 $count_row = db_fetch_one(

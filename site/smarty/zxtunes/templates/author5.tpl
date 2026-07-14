@@ -167,11 +167,11 @@ function validateEmpty() {
 		</a>
 		<a class="author-tabs__item{if $md eq 3} author-tabs__item--active{/if}" href="{$author_url}?md=3">
 			<span class="author-tabs__label">{if $language eq 'rus'}Интервью{else}Interview{/if}</span>
-			<span class="author-tabs__count">{$intv[0]}</span>
+			{if $intv[0]}<span class="author-tabs__count">{$intv[0]}</span>{/if}
 		</a>
 		<a class="author-tabs__item{if $md eq 4} author-tabs__item--active{/if}" href="{$author_url}?md=4">
 			<span class="author-tabs__label">{if $language eq 'rus'}Гостевая{else}Guestbook{/if}</span>
-			<span class="author-tabs__count">{$gb[0]}</span>
+			{if $gb[0]}<span class="author-tabs__count">{$gb[0]}</span>{/if}
 		</a>
 	</nav>
 
@@ -216,75 +216,23 @@ function validateEmpty() {
 <br><br>
 
 <div class="playlist_box">
-<table width=100%><tr><td>
-
+	<strong class="playlist_box__title">{if $language eq "rus"}Плейлист{else}Playlist{/if}</strong>
+	<span class="playlist_box__sort">
 {if $language eq "rus"}
-
-<strong style="font: bold 10pt Arial">ПЛЕЙЛИСТ</strong> &nbsp; &nbsp; сортировать по &nbsp; 
-<b>
-
 {if $sort eq "playing"}
-
-<a class="m" href="{$author_url}?sort=year">году</a> &nbsp;&nbsp; <a class="m" href="{$author_url}?sort=rating">рейтингу</a>
- &nbsp;&nbsp; прослушиваниям
-
-{elseif $sort eq "rating"}
-
- <a class="m" href="{$author_url}?sort=year">году</a> &nbsp;&nbsp; рейтингу
- &nbsp;&nbsp; <a class="m" href="{$author_url}?sort=playing">прослушиваниям</a>
-
+		<a class="m" href="{$author_url}?sort=year">по году</a><span class="playlist_box__sep"> / </span><span class="playlist_box__current">по прослушиваниям</span>
 {else}
-
-году &nbsp;&nbsp; <a class="m" href="{$author_url}?sort=rating">рейтингу</a>
- &nbsp;&nbsp; <a class="m" href="{$author_url}?sort=playing">прослушиваниям</a>
-
+		<span class="playlist_box__current">по году</span><span class="playlist_box__sep"> / </span><a class="m" href="{$author_url}?sort=playing">по прослушиваниям</a>
 {/if}
-</b>
-
-</td>
-<td align="right">треков <b>{$author.num_tracks}</b></td>
-
-
-
 {else}
-
-
-<strong style="font: bold 10pt Arial">PLAY LIST</strong> &nbsp; &nbsp; sort by &nbsp; 
-<b>
-
 {if $sort eq "playing"}
-
-<a class="m" href="{$author_url}?sort=year">year</a> &nbsp;&nbsp; <a class="m" href="{$author_url}?sort=rating">rating</a>
- &nbsp;&nbsp; playings
-
-{elseif $sort eq "rating"}
-
- <a class="m" href="{$author_url}?sort=year">year</a> &nbsp;&nbsp; rating
- &nbsp;&nbsp; <a class="m" href="{$author_url}?sort=playing">plaings</a>
-
+		<a class="m" href="{$author_url}?sort=year">by year</a><span class="playlist_box__sep"> / </span><span class="playlist_box__current">by playings</span>
 {else}
-
-year &nbsp;&nbsp; rating
- &nbsp;&nbsp; <a class="m" href="{$author_url}?sort=playing">playings</a>
-
+		<span class="playlist_box__current">by year</span><span class="playlist_box__sep"> / </span><a class="m" href="{$author_url}?sort=playing">by playings</a>
 {/if}
-</b>
-
-
-
-
-
-
-
-</td>
-<td align="right">tunes <b>{$author.num_tracks}</b></td>
-
-
-
 {/if}
-
-</tr>
-</table>
+	</span>
+	<span class="playlist_box__count"><b>{$author.num_tracks}</b> {$author.num_tracks_label}</span>
 </div>
 
 <br>
@@ -323,7 +271,7 @@ year &nbsp;&nbsp; rating
 
 </div>
 
-<div class="zx-track-line" id="pl{$playlist[n].id}"></div>
+<div class="zx-track-line"></div>
 </div>
 
 {/section}
@@ -433,135 +381,92 @@ It is sad, but {$author.nickname} still no interviews.
 
 {elseif $md eq 4}
 <br><br>
-<table><tr>
+<div class="zx-guestbook">
 
-<td style="padding-left: 32px" align=center valign=top>
+<div class="zx-guestbook__form">
 
 <br><br><br>
 
 <div style="font: bold 13px Verdana;">{if $language eq 'rus'}Что-нибудь cказать{else}Something to say{/if}</div>
 <br>
 
-<form method="post" enctype="multipart/form-data" onsubmit="return validateEmpty('name', 'email', 'message')">
+<form method="post" enctype="multipart/form-data" class="zx-form-stack" onsubmit="return validateEmpty('name', 'email', 'message')">
 <input type="hidden" name="_csrf" value="{$csrf_token}">
 
 <b>
 <p>
-{if $language eq 'rus'}Ник или имя{else}Nickname{/if}<br> <input style="border: 1px solid #ccc; width: 150px" name="name" type="text" size="16" maxlength="15" id="name">
+{if $language eq 'rus'}Ник или имя{else}Nickname{/if}<br> <input style="width: 150px" name="name" type="text" size="16" maxlength="15" id="name">
 </p>
   
 <p>
-E-mail  <br> <input style="border: 1px solid #ccc; width: 150px"  name="email" type="text" size="16" maxlength="100" id="email">
+E-mail  <br> <input style="width: 150px"  name="email" type="text" size="16" maxlength="100" id="email">
 </p>
 
 <p>
 {if $language eq 'rus'}Сообщение{else}Message{/if} <br> 
-<textarea type="text" name="message" rows="4" style="border: 1px solid #ccc; width: 150px" id="message"></textarea>
+<textarea type="text" name="message" rows="4" style="width: 150px" id="message"></textarea>
 </p>
 </b>
 
 <div  id="spam"></div>
 </form>
 
-</td>
+</div>
 
-<td>
-<table style="padding-left:50 px;" width=520 border=0>
+<div class="zx-guestbook__list">
 
 {section name=n loop=$guestbook}
-<tr>
-<td valign=bottom align=left>
-<div style="FONT-SIZE: 1.2em; padding-left: 3px;">
+<div>
+<div class="zx-guestbook__item-head">
+<div>
 <b>{$guestbook[n].user_name|h}</b>
 
 {if $guestbook[n].site}<a href="http://{$guestbook[n].site|h}" rel="nofollow"><img border=0 src="/css/links_ico.png"></a>{/if}
 </div>
-</td>
-<td nowrap align=right style="padding-right: 3px" class=d>{$guestbook[n].update}</td>
-</tr>
-
-<tr>
-<td valign=bottom style='border-top: 1px solid #dedbd8;' colspan=2>
-<div align='justify' style="FONT-SIZE: 1.2em; padding-left: 3px; padding-right: 3px; padding-top: 2px">{$guestbook[n].message|h}</div></td>
-</tr>
-<tr><td colspan=2><br></td></tr>
+<span class=d>{$guestbook[n].update}</span>
+</div>
+<div class="zx-guestbook__item-body">{$guestbook[n].message|h}</div>
+</div>
 {/section}
 
-</table>
-</td>
+</div>
 
-</tr>
-</table>
+</div>
 
 
 
 {/if}
 
 </div>
+
+	<div class="author-profile__updated author-profile__updated--footer dwns">
+		{if $language eq 'rus'}Страница обновлена: {else}Page updated: {/if}{$last_update}
+	</div>
 </div>
 
 {if $md eq 1}
-<link rel="preload" href="/css/ay_player.css?v=4" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/css/ay_player.css?v=4"></noscript>
+<link rel="preload" href="/css/ay_player.css?v=26" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/css/ay_player.css?v=26"></noscript>
 {literal}
 <div id="zx_ay_player_wrap" class="zx-ay-player-wrap">
 <div class="zx-ay-player-inner">
-<table id="player"><tr><td>
-<table>
-<tr id="pbody">
-<td class="p_control_left">
+<div id="player" class="zx-ay-player">
+<div class="p_control_left">
 <button id="b_play" class="b_control b_play" onclick="togglePlay(); return false;"><span class="icon"></span></button>
+</div>
+<div class="p_body">
+<div class="track_text"><div class="track_name_wrap"><span id="track_name"></span></div><span id="track_time" class="track_time" onclick="toggleTime(); return false;">0:00</span></div>
+<div class="timeline" onclick="changeProgress(event); return false;"><div id="track_progress_left" class="timeline0"></div><div id="track_progress_right" class="timeline1"></div></div>
+</div>
+<div class="p_track_nav">
 <button class="b_control b_prev" onclick="PreviousTrack(); return false;"><span class="icon"></span></button>
 <button class="b_control b_next" onclick="NextTrack(); return false;"><span class="icon"></span></button>
-</td>
-<td class="p_body">
-<div class="track_text"><span id="track_name">FYM Player</span><span id="track_time" class="track_time" onclick="toggleTime(); return false;">0:00</span></div>
-<div class="timeline" onclick="changeProgress(event); return false;"><div id="track_progress_left" class="timeline0"></div><div id="track_progress_right" class="timeline1"></div></div>
-</td>
-<td class="p_control_right">
+</div>
+<div class="p_control_right">
 <button id="b_shuffle" class="b_control b_shuffle" onclick="playShuffle(); return false;"><span class="icon"></span></button>
 <button id="b_repeat" class="b_control b_repeat" onclick="playRepeat(); return false;"><span class="icon"></span></button>
-<button class="b_control b_setup" onclick="showOptions(); return false;"><span class="icon"></span></button>
-</td>
-</tr>
-</table>
-</td></tr></table>
 </div>
 </div>
-
-<div id="zx_ay_options" class="popup__overlay">
-<div class="popup">
-<form action="#" method="POST" onsubmit="return false;">
-<table class="popup_table" id="mix">
-<tr class="popup_table_header">
-<td class="popup_table_header_text" colspan="3"><p>Options</p></td>
-<td class="popup_table_header_button"><a href="#" onclick="hideOptions(); return false;">X</a></td>
-</tr>
-<tr><td colspan="4">Channels mixing:</td></tr>
-<tr>
-<td>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ym_abc" value="0" checked><label for="ym_abc">YM ABC</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ym_acb" value="1"><label for="ym_acb">YM ACB</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ym_bac" value="2"><label for="ym_bac">YM BAC</label>
-</td>
-<td>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ym_bca" value="3"><label for="ym_bca">YM BCA</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ym_cab" value="4"><label for="ym_cab">YM CAB</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ym_cba" value="5"><label for="ym_cba">YM CBA</label>
-</td>
-<td>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ay_abc" value="6"><label for="ay_abc">AY ABC</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ay_acb" value="7"><label for="ay_acb">AY ACB</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ay_bac" value="8"><label for="ay_bac">AY BAC</label>
-</td>
-<td>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ay_bca" value="9"><label for="ay_bca">AY BCA</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ay_cab" value="10"><label for="ay_cab">AY CAB</label>
-<input onclick="changeMixing(this);" type="radio" name="channels" id="ay_cba" value="11"><label for="ay_cba">AY CBA</label>
-</td>
-</tr>
-</table>
-</form>
 </div>
 </div>
 {/literal}
@@ -571,7 +476,7 @@ E-mail  <br> <input style="border: 1px solid #ccc; width: 150px"  name="email" t
 <script defer type="text/javascript" src="/js/ay/pako_inflate.min.js"></script>
 <script defer type="text/javascript" src="/js/ay/ayumi.js"></script>
 <script defer type="text/javascript" src="/js/ay/fym.js"></script>
-<script defer type="text/javascript" src="/css/ay_player.js?v=6"></script>
+<script defer type="text/javascript" src="/css/ay_player.js?v=10"></script>
 {/if}
 
 {include file="right_strip.tpl"}

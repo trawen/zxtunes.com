@@ -13,61 +13,50 @@
 
 <center>
 
-<table cellpadding="3px" >
+<div class="zx-player-settings">
 
-<tr>
-<td class="win">Sound Chip: </td>
-<td> &nbsp; 
+<div class="zx-player-settings__row">
+<span class="win">Sound Chip: </span>
 <select style="width: 90px; font: normal 10px Verdana; border: 1px solid #b2b9c3" id="chip">
 <option value='1'>AY-3-8910</option>
 <option value='0'>YM2149F</option>
 </select>
-</td>
-</tr>
+</div>
  
-<tr>
-<td class="win">
-Channels mixer: </td>
-<td> &nbsp; 
+<div class="zx-player-settings__row">
+<span class="win">Channels mixer: </span>
 <select style="width: 90px; font: normal 10px Verdana; border: 1px solid #b2b9c3" id="mixer">
 <option value='0'>ABC</option>
 <option value='1'>ACB</option>
 <option value='2'>BAC</option>
 </select>
-</td>
-</tr>
+</div>
 
-<tr>
-<td class="win">Quality sound: </td>
-<td> &nbsp; 
+<div class="zx-player-settings__row">
+<span class="win">Quality sound: </span>
 <select style="width: 90px; font: normal 10px Verdana;  border: 1px solid #b2b9c3" id="quality">
 <option value='0'>LOW</option>
 <option value='1'>HI</option>
-</select><br>
-</td>
-</tr>
+</select>
+</div>
 
-<tr>
-<td class="win">Stereo Enhance: </td>
-<td> &nbsp; 
+<div class="zx-player-settings__row">
+<span class="win">Stereo Enhance: </span>
 <select style="width: 90px; font: normal 10px Verdana; border: 1px solid #b2b9c3" id="stereo">
 <option value='0' >OFF</option>
 <option value='1'>ON</option>
 </select>
-</td>
-</tr>
+</div>
 
-<tr>
-<td class="win">Bass boost: </td>
-<td> &nbsp; 
+<div class="zx-player-settings__row">
+<span class="win">Bass boost: </span>
 <select style="width: 90px; font: normal 10px Verdana;  border: 1px solid #b2b9c3" id="bass">
 <option value='0' >OFF</option>
 <option value='1' >ON</option>
 </select>
-</td>
-</tr>
+</div>
 
-</table>
+</div>
 <br>
 <input style="border: 1px solid #FC9E0C; width: 210px; height: 18px; font: normal 10px Arial" id="autoplay" type="text" value="" onclick="selectText();"><br>
 <div style="color: white">
