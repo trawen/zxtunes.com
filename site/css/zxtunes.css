@@ -197,8 +197,97 @@ DIV.tpmenu A {
 .tpmenu__aside {
 	display: flex;
 	align-items: center;
-	margin-left: auto;
+	margin-left: 0;
 	flex: 0 0 auto;
+}
+
+.tpmenu__burger {
+	display: none;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 4px;
+	width: 34px;
+	height: 34px;
+	margin-left: auto;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.tpmenu__burger-line {
+	display: block;
+	width: 16px;
+	height: 2px;
+	background: #fff;
+	border-radius: 1px;
+	transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.tpmenu__burger--open .tpmenu__burger-line:nth-child(1) {
+	transform: translateY(6px) rotate(45deg);
+}
+
+.tpmenu__burger--open .tpmenu__burger-line:nth-child(2) {
+	opacity: 0;
+}
+
+.tpmenu__burger--open .tpmenu__burger-line:nth-child(3) {
+	transform: translateY(-6px) rotate(-45deg);
+}
+
+.mobile-nav {
+	display: none;
+	grid-template-rows: 0fr;
+	margin-top: 0;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
+	transition: grid-template-rows 0.28s ease, margin-top 0.28s ease, opacity 0.22s ease;
+}
+
+.mobile-nav--open {
+	grid-template-rows: 1fr;
+	margin-top: 4px;
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.mobile-nav__panel {
+	min-height: 0;
+	overflow: hidden;
+	background: #495874;
+	border-radius: 2px;
+	transform: translateY(-8px);
+	transition: transform 0.28s ease;
+}
+
+.mobile-nav--open .mobile-nav__panel {
+	transform: translateY(0);
+}
+
+DIV.tpmenu .mobile-nav a {
+	display: block;
+	padding: 10px 14px;
+	color: #fff;
+	background: #596680;
+	text-decoration: none;
+	font: normal 13px/1.3 Arial, sans-serif;
+	border-bottom: 1px solid #495874;
+}
+
+DIV.tpmenu .mobile-nav a:last-child {
+	border-bottom: 0;
+}
+
+DIV.tpmenu .mobile-nav a:hover,
+DIV.tpmenu .mobile-nav a.active {
+	color: #000;
+	background: #fff;
+	text-decoration: none;
+	padding: 10px 14px;
 }
 
 .tpmenu__aside .site-search {
@@ -354,13 +443,20 @@ DIV.tpmenu A {
 		display: none;
 	}
 
+	.tpmenu__burger {
+		display: flex;
+	}
+
 	.tpmenu__aside {
-		margin-left: auto;
-		flex: 0 0 auto;
+		margin-left: 0;
+		flex: 1 1 auto;
+		min-width: 0;
 	}
 
 	.tpmenu__aside .site-search {
 		display: flex;
+		flex: 1 1 auto;
+		min-width: 0;
 		padding: 0 8px 0 4px;
 	}
 
@@ -368,6 +464,10 @@ DIV.tpmenu A {
 		flex: 1 1 auto;
 		width: auto;
 		min-width: 0;
+	}
+
+	.mobile-nav {
+		display: grid;
 	}
 
 	.site-search--mobile {
