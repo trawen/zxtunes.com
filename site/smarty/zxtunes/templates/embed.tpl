@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <HTML>
 <HEAD>
 
@@ -6,8 +7,7 @@
 <LINK href="/css/zxtunes.css" type=text/css rel=stylesheet>
 <LINK href="/js/tipsy.css" type=text/css rel=stylesheet>
 
-<script type="text/javascript" src="/js/blocker.js"></script>
-<script type="text/javascript" src="/js/swfobject.js"></script>	
+<script type="text/javascript" src="/js/swfobject.js"></script>
 
 <script type="text/javascript" src="/css/jquery.js"></script>
 <script language="javascript">

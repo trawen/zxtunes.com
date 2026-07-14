@@ -1,7 +1,6 @@
-﻿</TD> 
-<TD rowSpan=3><IMG height=1 src="/css/0.gif" width=1></TD>
-<TD id=right_column_holder vAlign=top width=350 rowSpan=3>
-<DIV class=right_column style="width: 210px">
+﻿</main>
+<aside class="site-layout__aside" id="right_column_holder">
+<div class="right_column">
 
 <!--
 <center>
@@ -256,5 +255,5 @@ title="{if $language eq 'rus'}Скачать {else}Download {/if} {$best[n].file
 
 -->
 
-  </DIV>
- </TD>
+</div>
+</aside>

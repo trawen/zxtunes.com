@@ -219,7 +219,7 @@ if (!$zapros0) {echo mysql_error();}
 else { $n=0; $l=0;
 
 
-$alfavit="<div id='Navigator2' style='DISPLAY: inline;' align='left'>";
+$alfavit="<div class='authors-page__alpha-nav' id='Navigator2'>";
 
 if ($letter=="ALL" and !$sr) {$alfavit.= "<span class='Page'>$all</span> ";}
 else {$alfavit.= "<a class='Page' href='?order=".$order."&letter=ALL'>$all</a> ";}
@@ -229,7 +229,7 @@ if ($alf[0]<="9" and !$n) {if ($letter=="123" and !$sr) {$alfavit.= "<span class
 	elseif ($alf[0]<="9") {$alfavit.= "<a class='Page' href='?letter=123&order=".$order."'>0..9</a> "; $n++;}}
 
 elseif ($alf[0]>"9") {if ($alf[0]>"Z" and !$l) 
-{$alfavit.= "</div></td></tr><tr><td><div id='Navigator2' align='left'>"; $l++;}
+{$alfavit.= "<span class='authors-page__alpha-break' aria-hidden='true'></span>"; $l++;}
 
 if ($letter=="$alf[0]" and !$sr) {$alfavit.= "<span class='Page'>".$alf[0]."</span>";}
 else {$alfavit.= "<a class='Page' href='?letter=".$alf[0]."&order=".$order."'>".$alf[0]."</a>";}}
@@ -285,7 +285,12 @@ else { $kl6 = mysqli_num_rows($zapros);  mysqli_free_result($zapros);}
 
 $kl2=Ceil($kl/40);
 
+function authors_list_page_href(int $page): string
+{
+    global $id, $order, $up, $letter, $sr;
 
+    return '?id=' . $id . '&lm=40&fr=' . $page . '&order=' . $order . '&up=' . $up . '&letter=' . $letter . '&sr=' . $sr;
+}
 
 for ($i = 1; $i <= $kl2; $i++) {
 	if ($fr==$i and $lm == $nml) {$pages.= "<span class='Page'>".$i."</span>";
@@ -293,11 +298,61 @@ for ($i = 1; $i <= $kl2; $i++) {
 }
 if ($lm > $nml) {$pages.= " <span class='Page'>$all</span>";} else {$pages.= "<a class='Page'href='?id=".$id."&lm=".$kl."&fr=1&order=".$order."&up=".$up."&letter=".$letter."&sr=".$sr."'>$all</a>";}
 
+$totalPages = (int) $kl2;
+$currentPage = (int) $fr;
+$windowSize = 7;
+$pagesMobile = '';
+
+if ($lm > $nml) {
+    for ($i = 1; $i <= $kl2; $i++) {
+        $pagesMobile .= "<a class='Page' href='" . authors_list_page_href($i) . "'>" . $i . "</a> ";
+    }
+    $pagesMobile .= "<span class='Page'>$all</span>";
+} elseif ($totalPages <= 1) {
+    $pagesMobile = "<span class='Page'>1</span>";
+} else {
+    $prevLabel = $_SESSION['language'] === 'rus' ? 'Предыдущая страница' : 'Previous page';
+    $nextLabel = $_SESSION['language'] === 'rus' ? 'Следующая страница' : 'Next page';
+
+    if ($currentPage > 1) {
+        $pagesMobile .= "<a class='Page authors-toolbar__arrow' href='" . authors_list_page_href($currentPage - 1) . "' aria-label='" . $prevLabel . "'>&larr;</a> ";
+    }
+
+    if ($totalPages <= $windowSize) {
+        $start = 1;
+        $end = $totalPages;
+    } else {
+        $start = max(1, $currentPage - (int) floor($windowSize / 2));
+        $end = $start + $windowSize - 1;
+        if ($end > $totalPages) {
+            $end = $totalPages;
+            $start = $end - $windowSize + 1;
+        }
+    }
+
+    for ($i = $start; $i <= $end; $i++) {
+        if ($currentPage === $i && $lm == $nml) {
+            $pagesMobile .= "<span class='Page'>" . $i . "</span> ";
+        } else {
+            $pagesMobile .= "<a class='Page' href='" . authors_list_page_href($i) . "'>" . $i . "</a> ";
+        }
+    }
+
+    if ($currentPage < $totalPages) {
+        $pagesMobile .= "<a class='Page authors-toolbar__arrow' href='" . authors_list_page_href($currentPage + 1) . "' aria-label='" . $nextLabel . "'>&rarr;</a>";
+    } else {
+        $pagesMobile .= "<span class='Page authors-toolbar__arrow authors-toolbar__arrow--disabled' aria-hidden='true'>&rarr;</span>";
+    }
+
+    $pagesMobile .= " <a class='Page' href='?id=" . $id . "&lm=" . $kl . "&fr=1&order=" . $order . "&up=" . $up . "&letter=" . $letter . "&sr=" . $sr . "'>$all</a>";
+}
+
 //echo "&nbsp&nbsp&nbsp&nbsp(".$kl5."/".$kl."/".$kl6.")<br><br>";
 
 $smarty->assign('kl2', $kl5);
 $smarty->assign('kl4', $kl);
 $smarty->assign('pages', $pages);
+$smarty->assign('pages_mobile', $pagesMobile);
 
 
 
@@ -418,8 +473,11 @@ else
 		if ($real_name !== '') {
 			$nick .= ' <span class="authors-nick__real">(' . h($real_name) . ')</span>';
 		}
-		$tbtx[$n][0] = $nick;
 		$tbtx[$n][1]= $gr ?: '—';
+		if ($gr !== '' && $gr !== '—') {
+			$nick .= '<span class="authors-nick__groups">^ ' . $gr . '</span>';
+		}
+		$tbtx[$n][0] = $nick;
 
 		if ($sr and $order=="country") {$tbtx[$n][2]= $row1['country'.$lang];} 
 		else {if ($row1['country'.$lang]) {$tbtx[$n][2]= "<a class='mm' href='?letter=".$letter."&order=country&up=ASC&sr=".$row1['country'.$lang]."'>".$row1['country'.$lang]."</a>";}

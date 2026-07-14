@@ -66,7 +66,7 @@ if ($language === 'ru') {
     $language = 'eng';
 }
 if (!$language) {
-    $language = 'rus';
+    $language = $_SESSION['language'] ?? 'rus';
 }
 
 $_SESSION['language'] = $language;
@@ -220,6 +220,10 @@ $smarty->register_modifier('aurl', 'smarty_modifier_aurl');
 
 $smarty->assign('csrf_token', csrf_token());
 $smarty->assign('css_v', (string) @filemtime(__DIR__ . '/css/zxtunes.css'));
+$critical_css_path = __DIR__ . '/css/zxtunes-critical.css';
+$smarty->assign('critical_css_v', (string) @filemtime($critical_css_path));
+$smarty->assign('critical_css_inline', is_readable($critical_css_path) ? file_get_contents($critical_css_path) : '');
+$smarty->assign('language', $_SESSION['language']);
 $smarty->assign('authors_map_url', zxtunes_authors_map_url());
 $smarty->assign('search_url', zxtunes_search_url());
 $smarty->assign('search_query', trim((string) ($_REQUEST['srtext'] ?? '')));

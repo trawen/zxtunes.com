@@ -41,9 +41,9 @@
 			<button class="site-search__btn" type="submit" name="submit" value="OK">OK</button>
 		</form>
 		{if $language eq 'rus'}
-		язык <b>rus <a href="{$tkurl}ln=eng" class="site-header__lang-inactive">eng</a></b>
+		<span class="site-header__lang-active">rus</span> <a href="{$tkurl}ln=eng" class="site-header__lang-inactive">eng</a>
 		{else}
-		language <b><a href="{$tkurl}ln=rus" class="site-header__lang-inactive">rus</a> eng</b>{/if}
+		<a href="{$tkurl}ln=rus" class="site-header__lang-inactive">rus</a> <span class="site-header__lang-active">eng</span>{/if}
 	</div>
 </div>
 </header>
@@ -51,7 +51,5 @@
 
 
 
-<TABLE cellSpacing=20 cellPadding=0 width="100%" border=0>
-<TBODY>
-<TR>
-<td valign=top width="80%">
+<div class="site-layout">
+<main class="site-layout__main">

@@ -93,6 +93,25 @@ function zxtunes_author_url(array $author, array $params = [], ?string $lang_pre
     return $url;
 }
 
+function zxtunes_author_photo_url(array $author, ?string $lang_prefix = null): string
+{
+    $lang_prefix = $lang_prefix ?? zxtunes_lang_prefix();
+    $slug = zxtunes_author_slug($author, $lang_prefix);
+
+    return '/' . $lang_prefix . '/authors/' . rawurlencode($slug) . '/photo';
+}
+
+function zxtunes_author_photo_url_by_id(int $id, ?string $lang_prefix = null): string
+{
+    $lang_prefix = $lang_prefix ?? zxtunes_lang_prefix();
+    $row = zxtunes_author_slug_row($id);
+    if (!$row) {
+        return '/author_photo.php?id=' . $id;
+    }
+
+    return zxtunes_author_photo_url($row, $lang_prefix);
+}
+
 function zxtunes_author_url_by_id(int $id, array $params = [], ?string $lang_prefix = null): string
 {
     $lang_prefix = $lang_prefix ?? zxtunes_lang_prefix();

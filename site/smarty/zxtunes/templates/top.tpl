@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <HTML>
 <HEAD>
 {if $autoplay_title}
@@ -19,13 +20,19 @@
 </script>
 {/if}
 
-<LINK href="/css/zxtunes.css?v={$css_v}" type=text/css rel=stylesheet>
-
+{if $critical_css_inline}
+<style id="zxtunes-critical">{$critical_css_inline}</style>
+{/if}
+<link rel="preload" href="/css/zxtunes.css?v={$css_v}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/css/zxtunes.css?v={$css_v}"></noscript>
+{if $load_leaflet}
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
+<link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""></noscript>
+{/if}
 
 <meta name="verify-v1" content="OlHdsBAsi/y17fbbfbH7yv5E4vWXtfwKbJOIuSaROVM=" />
-<script type="text/javascript" src="/js/blocker.js"></script>
-<script type="text/javascript" src="/js/swfobject.js"></script>	
-<SCRIPT type="text/javascript" src="/js/jquery-1.6.4.min.js"></SCRIPT>
 
 </HEAD>
 <BODY{if $body_class} class="{$body_class}"{/if} leftMargin="0" topMargin="8" marginheight="8" marginwidth="0">

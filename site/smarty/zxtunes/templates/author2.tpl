@@ -1,5 +1,6 @@
 {include file="menu.tpl"}
 <script type="text/javascript" src="css/jquery.js"></script>
+<script type="text/javascript" src="/js/swfobject.js"></script>
 <script type="text/javascript" src="css/player2.js"></script> 
 <script language="javascript">
 var author_id = "{$author_id}";

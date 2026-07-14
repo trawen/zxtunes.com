@@ -1,5 +1,4 @@
 {include file="menu.tpl"}
-<script type="text/javascript" src="css/jquery.js"></script>
 
 <h2>РЕМИКСЫ</h2>
 

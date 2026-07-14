@@ -1,22 +1,6 @@
 {include file="menu.tpl"}
-{if $md eq 1}
-<link href="/css/ay_player.css?v=4" type="text/css" rel="stylesheet">
-{/if}
 
-<script type="text/javascript" src="/css/jquery.js"></script>
 <script language="javascript">
-var autoplay = "{$autoplay}";
-var author_id = {$author.id};
-var author_name = {$author_name_js};
-var user_id = "{$user_id}";
-{if $md eq 1}
-var first_track = "{$first_track_id}";
-var zxtunesPlaylist = {$playlist_js};
-{else}
-var first_track = 0;
-var zxtunesPlaylist = [];
-{/if}
-	
 {if $language eq 'rus'}
 var spam = "<in"+"put type='submit' style='width: 120px' name='submit' value='Отправить'>";
 {else}
@@ -26,19 +10,14 @@ var spam = "<in"+"put type='submit' style='width: 120px' name='submit' value='Su
 {literal}
 
 function noSpam() {
-
-	$("#spam").html(spam);
-
+	var el = document.getElementById("spam");
+	if (el) {
+		el.innerHTML = spam;
+	}
 }
 
 function FixProfileHeight() {
-
-	var ph = $("#author_photo").height();
-	var pr = $("#author_info").height();
-
-	if (ph > pr) { $("#author_photo").height(pr); }
 	noSpam();
-	
 }
 
 function validateEmpty() {
@@ -77,245 +56,130 @@ function validateEmpty() {
 
 </script>
 {/literal}
-{if $md eq 1}
-<script type="text/javascript" src="/js/ay/pako_inflate.min.js"></script>
-<script type="text/javascript" src="/js/ay/ayumi.js"></script>
-<script type="text/javascript" src="/js/ay/fym.js"></script>
-<script type="text/javascript" src="/css/ay_player.js?v=5"></script>
-{/if}
-
 
  
-<table width=100% border=0>
-<tr>
+<div class="author-page">
 
+<section class="author-profile">
+	<div class="author-profile__top">
+		<div class="author-profile__info" id="author_info">
 
-<td rowspan=4 vAlign=top align=left width=1% style="padding-right: 16px">
-<img alt="{$title}" title="{$title}" onload="FixProfileHeight()" id="author_photo" class="photo" src="/{if $author.photo}photo/{$author.id}.jpg{else}css/wanted.png{/if}">
-</td>
+			<div class="author-profile__heading">
+				<div class="author-heading author-heading--with-thumb">
+					<H1{if $author.dead} class="author-heading__name--dead"{/if}><span class="author-heading__nick">{$author.nickname}</span>{if $language eq 'rus'}{if $author.first_name or $author.last_name}<span class="author-heading__real"> ({if $author.first_name and $author.last_name}{$author.first_name} {$author.last_name}{elseif $author.first_name}{$author.first_name}{else}{$author.last_name}{/if})</span>{/if}{else}{if $author.first_name_en or $author.last_name_en}<span class="author-heading__real"> ({if $author.first_name_en and $author.last_name_en}{$author.first_name_en} {$author.last_name_en}{elseif $author.first_name_en}{$author.first_name_en}{else}{$author.last_name_en}{/if})</span>{/if}{/if}</H1>
+					{if $author.photo}
+					<a class="author-profile__thumb" href="{$author_photo_url}" title="{if $language eq 'rus'}Фото {$author.nickname}{else}{$author.nickname} photo{/if}">
+						<img src="/photo/60/{$author.id}.jpg" alt="{$author.nickname|escape}" width="32" height="32">
+					</a>
+					{/if}
+					{if $author.dead}<span class="author-dead">{if $language eq 'rus'}умер {$author.dead}г{else}died {$author.dead}{/if}</span>{/if}
+				</div>
+				{if $user.login}
+				<a href="/author_edit.php?id={$author.id}" class="author-profile__edit dwns">редактировать <img src="/images/edit.ico" alt="" style="vertical-align: middle"></a>
+				{/if}
+			</div>
 
+			{if $author.also}
+			<p class="author-field">
+				<span class="au1">{if $language eq 'rus'}другие ники:{else}also known:{/if}</span>
+				<span class="au2">{$author.also}</span>
+			</p>
+			{/if}
 
+			{if $group}
+			<p class="author-field">
+				<span class="au1">{if $language eq 'rus'}группа:{else}group:{/if}</span>
+				<span class="au2">{$group}</span>
+			</p>
+			{if $others}
+			<p class="author-field">
+				<span class="au1">{if $language eq 'rus'}согрупники:{else}others members:{/if}</span>
+				<span class="au2">{$others}</span>
+			</p>
+			{/if}
+			{/if}
 
+			{if $author.city or $author.city_en or $author.country or $author.country_en}
+			<p class="author-field author-field--location">
+				<span class="au1">{if $language eq 'rus'}расположение:{else}location:{/if}</span>
+				<span class="au2">
+				{if $language eq 'rus'}
+					{if $author.city and $author.country}{$author.city}, {$author.country}
+					{elseif $author.city}{$author.city}
+					{elseif $author.country}{$author.country}
+					{/if}
+				{else}
+					{if $author.city_en and $author.country_en}{$author.city_en}, {$author.country_en}
+					{elseif $author.city_en}{$author.city_en}
+					{elseif $author.country_en}{$author.country_en}
+					{/if}
+				{/if}
+				{if $flag}<img width="16" height="10" class="flag" src="/{$flag}" alt="">{/if}
+				</span>
+			</p>
+			{/if}
 
+			<p class="author-field">
+				<span class="au1">{if $language eq 'rus'}специализация:{else}specialization:{/if}</span>
+				<span class="au2">{$author.spec}</span>
+			</p>
 
-<td rowspan=4 vAlign=top align=left><div id="author_info">
+			<p class="author-field">
+				<span class="au1">{if $language eq 'rus'}активность:{else}activity:{/if}</span>
+				<span class="au2">
+					{if $author.years_from and $author.years_to and $author.years_from eq $author.years_to}{$author.years_from}
+					{elseif $author.years_from and $author.years_to}{$author.years_from}—{$author.years_to}
+					{elseif $author.years_from}{$author.years_from}
+					{elseif $author.years_to}{$author.years_to}
+					{else}—{/if}
+				</span>
+			</p>
 
-<table width=100%><tr><td><div class="author-heading"><H1><span {if $author.dead}style="border: 1px solid black; padding: 2px 9px 2px 8px"{/if}>{$author.nickname}</span></H1>{if $author.dead}<span class="author-dead">{if $language eq 'rus'}умер {$author.dead}г{else}died {$author.dead}{/if}</span>{/if}</div></td>
-<td align=right style="padding-right: 16px">{if $user.login}<a href="/author_edit.php?id={$author.id}" class="dwns">редактировать<a> <img src="/images/edit.ico" style="vertical-align: middle">{/if}</td></tr></table>
+			{if $author.email or $author.site}
+			<p class="author-field">
+				<span class="au1">{if $language eq 'rus'}контакты:{else}contacts:{/if}</span>
+				<span class="au2">
+					{if $author.email}{mailto address=$author.email encode="javascript"}{/if}{if $author.email and $author.site}, {/if}{if $author.site}<noindex><a href="{$author.site_url}" rel="nofollow">{$author.site_label}</a></noindex>{/if}
+				</span>
+			</p>
+			{/if}
 
+			<p class="author-field author-field--archive">
+				<span class="au1">{if $language eq 'rus'}архив музыки:{else}music archive:{/if}</span>
+				<span class="author-field__body">
+					<span class="au2">
+						{if $szip}<a class="m" title="{$author.nickname} music" href="/downloads.php?id={$author.id}&md=author">{$author.nickname}.zip</a> ({$szip}Kb){else}—{/if}
+					</span>
+					{if $szip}<span class="author-field__meta dwns">{if $language eq 'rus'}скачиваний{else}downloads{/if} {$author.downloads}</span>{/if}
+				</span>
+			</p>
+		</div>
 
-
- 
-{if $author.also}{if $language eq 'rus'}<span class="au1">другие ники: </span>
-{else}<span class="au1">also known: </span>{/if}<span class="au2">{$author.also}
-</span>
-<br>
-<br>
-{/if}
-
-
-<span class="au1">
-{if $language eq 'rus'}имя: </span><span class="au2"> 
-	{if $author.first_name and $author.last_name} {$author.first_name} {$author.last_name}
-	{elseif $author.first_name} {$author.first_name}
-	{elseif $author.last_name} {$author.last_name}
-	{else}—{/if}
-{else}name: </span><span class="au2">
-	{if $author.first_name_en and $author.last_name_en} {$author.first_name_en} {$author.last_name_en}
-	{elseif $author.first_name_en} {$author.first_name_en}
-	{elseif $author.last_name_en} {$author.last_name_en}
-	{else}—{/if}
-{/if}
-</span>
-<br>
-
-
-{if $group}
-	<div style="padding-top: 1px;">
-	{if $language eq 'rus'}<span class="au1">группа: </span>{else}<span class="au1">group: </span>{/if}
-	{if $group}<span class="au2">{$group}</span>{else}—{/if}
+		<div class="author-profile__photo">
+			<img alt="{$title}" title="{$title}" onload="FixProfileHeight()" id="author_photo" class="photo" src="/{if $author.photo}photo/{$author.id}.jpg{else}css/wanted.png{/if}">
+		</div>
 	</div>
 
+	<nav class="author-tabs" aria-label="{if $language eq 'rus'}Разделы профиля{else}Profile sections{/if}">
+		<a class="author-tabs__item{if $md eq 1} author-tabs__item--active{/if}" href="{$author_url}">
+			<span class="author-tabs__label">{if $language eq 'rus'}Музыка{else}Music{/if}</span>
+			<span class="author-tabs__count">{$author.num_tracks}</span>
+		</a>
+		<a class="author-tabs__item{if $md eq 3} author-tabs__item--active{/if}" href="{$author_url}?md=3">
+			<span class="author-tabs__label">{if $language eq 'rus'}Интервью{else}Interview{/if}</span>
+			<span class="author-tabs__count">{$intv[0]}</span>
+		</a>
+		<a class="author-tabs__item{if $md eq 4} author-tabs__item--active{/if}" href="{$author_url}?md=4">
+			<span class="author-tabs__label">{if $language eq 'rus'}Гостевая{else}Guestbook{/if}</span>
+			<span class="author-tabs__count">{$gb[0]}</span>
+		</a>
+	</nav>
 
+	<div class="author-profile__updated dwns">{$last_update}</div>
+</section>
 
-	{if $others}<div style="padding-top: 1px;"><span class="au1">
-	{if $language eq 'rus'}согрупники:</span>{else}others members:</span>{/if}
-	<span class="au2">{$others}</span></div><br>
-	{else}<br>
-	{/if}
+<div class="author-content">
 
-{else}
-<br>
-{/if}
-
-
-{if $author.city or $author.city_en or $author.country or $author.country_en}
-<span class="au1">
-{if $language eq 'rus'}расположение: </span><span class="au2">
-  {if $author.city and $author.country}{$author.city}, {$author.country}
-  {elseif $author.city}{$author.city}
-  {elseif $author.country}{$author.country}
-  {/if}
-{else}location: </span><span class="au2">
-  {if $author.city_en and $author.country_en}{$author.city_en}, {$author.country_en}
-  {elseif $author.city_en}{$author.city_en}
-  {elseif $author.country_en}{$author.country_en}
-  {/if} 
-{/if}
-{if $flag}<img width=16 height=10 class="flag" src="/{$flag}">{/if}
-</span>
-<br>
-{/if}
-
-
-
-<div style="padding-top: 1px;">
-<span class="au1">
-{if $language eq 'rus'}специализация: </span>{else}specialization: </span>{/if}
-<span class="au2">{$author.spec}</span>
-</div>
-
-<br>
-
-<div style="padding-top: 1px;">
-<span class="au1">
-{if $language eq 'rus'}активность: </span>{else}activity: </span>{/if}
-<span class="au2">
-  {if $author.years_from and $author.years_to and $author.years_from eq $author.years_to }{$author.years_from}
-  {elseif $author.years_from and $author.years_to}{$author.years_from}—{$author.years_to}
-  {elseif $author.years_from}{$author.years_from}
-  {elseif $author.years_to}{$author.years_to}
-  {else}—{/if}
-</span>
-</div>
-<br>
-
-
-{if $author.email}
-	<span class="au1">
-	{if $language eq 'rus'}почта: </span>{else}e-mail: </span>{/if}
-	<span class="au2">
-	{if $author.email} {mailto address=$author.email encode="javascript"}{else}—{/if}
-	</span>
-	<br>
-{/if}
-
-
-{if $author.site}
-	<span class="au1">
-	{if $language eq 'rus'}сайт: </span>{else}site: </span>{/if}
-	<span class="au2">
-	{if $author.site}<noindex><a href="{$author.site_url}" rel="nofollow">{$author.site_label}</a></noindex>{else}—{/if}
-	</span>
-	<br>
-{/if}
-
-<br>
-
-<table cellpadding=0 cellspacing=0 border=0><tr><td>
-<span class="au1">
-{if $language eq 'rus'}архив музыки: </span>{else}music archive: </span>{/if}
-</td><td><span class="au2">
-{if $szip}<a class="m" title="{$author.nickname} music" alt="{$author.nickname} music" href="/downloads.php?id={$author.id}&md=author">{$author.nickname}.zip</a> ({$szip}Kb)</span> 
-{else}—{/if}</span>
-</span></td></tr>
-
-<tr><td></td><td style='padding-top: 2px;'><span class="dwns" style='padding-left: 4px;'>
-{if $language eq 'rus'}скачиваний{else}downloads{/if}</span> {$author.downloads}
-</td></tr></table>
-
-
-
-</div>
-</td>
-</tr>
-
-
-
-
-
-
-<tr>
-<td align=center valign=top nowrap width="120">
-
-<a href='http://www.facebook.com/sharer.php?u={$author_url}' title='Добавить в Facebook' rel='nofollow' class='soc_button soc_facebook' target='_blank'></a>
-
-<a href='http://twitter.com/share?url={$author_url}' title='Опубликовать в Twitter' rel='nofollow' class='soc_button soc_twitter' target='_blank'></a>
-
-<a href='http://vkontakte.ru/share.php?url={$author_url}' title='Добавить в Вконтакте' class='soc_button soc_vkontakte' target='_blank'></a>
-
-<a href='http://www.livejournal.com/update.bml?event={$author_url}' title='Опубликовать в LiveJournal' rel='nofollow' class='soc_button soc_livejournal' target='_blank'></a>
-
-<a href='https://plusone.google.com/_/+1/confirm?hl=en&url={$author_url}' title='Google +1' rel='nofollow' class='soc_button soc_google' target='_blank'></a>
-
-</td>
-</tr>
-
-
-
-<tr>
-<td width="120" align=center style="padding-top: 4px">
-
-<table style="padding: 10px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; border: 1px solid #DDD;">
-
-
-<tr>
-<td align=center>
-<a style="letter-spacing: 1px; font: bold 13px Arial; color: #0063B0" href="{$author_url}">{if $language eq 'rus'}Музыка{else}Music{/if}</a>
-</td>
-</tr>
-<tr>
-<td style="width: auto; padding-top: 0px;" align=center>
-<span class="dwns" >{if $language eq 'rus'}треков{else}tracks{/if}</span> {$author.num_tracks}
-</td>
-</tr>
-
-<tr><td><br></td></tr>
-
-<tr>
-<td align=center>
-<a style="letter-spacing: 1px; font: bold 13px Tahoma; color: #0063B0" href="{$author_url}?md=3">{if $language eq 'rus'}Интервью{else}Interview{/if}</a>
-</td>
-</tr>
-<tr>
-<td style="width: auto; padding-top: 0px;" align=center>
-<span class="dwns">{if $language eq 'rus'}статей{else}articles{/if}</span> {$intv[0]}
-</td>
-</tr>
-
-<tr><td><br></td></tr>
-
-<tr>
-<td align=center>
-<a style="letter-spacing: 1px; font: bold 13px Tahoma; color: #0063B0" href="{$author_url}?md=4">{if $language eq 'rus'}Гостевая{else}Guestbook{/if}</a>
-</td>
-</tr>
-<tr>
-<td style="width: auto; padding-top: 0px;" align=center>
-<span class="dwns">{if $language eq 'rus'}сообщений{else}messages{/if}</span> {$gb[0]}
-</td>
-</tr>
-
-</table>
-
-</div>
-</div>
-
-<br><div class="dwns">{$last_update}</div>
-
-</td>
-</tr>
-
-<tr>
-<td valign=bottom align=center width="120">
-
-
-
-
-</td>
-
-
-</tr></table>
 
 
 
@@ -633,17 +497,12 @@ E-mail  <br> <input style="border: 1px solid #ccc; width: 150px"  name="email" t
 
 {/if}
 
-
-
-
-
-	  
-
-      	  
-{include file="right_strip.tpl"}
-{include file="footer.tpl"}
+</div>
+</div>
 
 {if $md eq 1}
+<link rel="preload" href="/css/ay_player.css?v=4" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/css/ay_player.css?v=4"></noscript>
 {literal}
 <div id="zx_ay_player_wrap" class="zx-ay-player-wrap">
 <div class="zx-ay-player-inner">
@@ -706,5 +565,14 @@ E-mail  <br> <input style="border: 1px solid #ccc; width: 150px"  name="email" t
 </div>
 </div>
 {/literal}
+
+<script type="application/json" id="zxtunes-player-config">{$player_config_json}</script>
+<script defer type="text/javascript" src="/css/jquery.js"></script>
+<script defer type="text/javascript" src="/js/ay/pako_inflate.min.js"></script>
+<script defer type="text/javascript" src="/js/ay/ayumi.js"></script>
+<script defer type="text/javascript" src="/js/ay/fym.js"></script>
+<script defer type="text/javascript" src="/css/ay_player.js?v=6"></script>
 {/if}
 
+{include file="right_strip.tpl"}
+{include file="footer.tpl"}

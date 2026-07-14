@@ -23,6 +23,11 @@ var shufflePos = 0;
 var tracksById = {};
 var autoplayUnlockBound = false;
 var pendingAutoplayId = 0;
+var autoplay = 0;
+var author_id = 0;
+var author_name = "";
+var first_track = 0;
+var zxtunesPlaylist = [];
 
 function buildTrackIndex() {
 	tracksById = {};
@@ -666,7 +671,35 @@ function AddComment(id) {
 	$("#cm" + id).text(comments);
 }
 
+function readPlayerConfig() {
+	var el = document.getElementById("zxtunes-player-config");
+	if (!el) {
+		return;
+	}
+	try {
+		var cfg = JSON.parse(el.textContent);
+		if (cfg.autoplay !== undefined) {
+			autoplay = cfg.autoplay;
+		}
+		if (cfg.author_id !== undefined) {
+			author_id = cfg.author_id;
+		}
+		if (cfg.author_name !== undefined) {
+			author_name = cfg.author_name;
+		}
+		if (cfg.first_track !== undefined) {
+			first_track = cfg.first_track;
+		}
+		if (cfg.playlist) {
+			zxtunesPlaylist = cfg.playlist;
+		}
+	} catch (e) {
+		zxtunesPlaylist = [];
+	}
+}
+
 function initAyPlayer() {
+	readPlayerConfig();
 	buildTrackIndex();
 	var trackId = getAutoplayTrackId();
 	if (trackId > 0) {

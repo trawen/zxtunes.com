@@ -327,10 +327,10 @@ $row1 = db_fetch_one('SELECT * FROM muzx_authors WHERE id=? LIMIT 1', 'i', [$id]
 
 
 
-if (!$row1)
-	echo 'Author not found';
-else
-{ 
+if (!$row1) {
+	http_response_code(404);
+	exit('Author not found');
+}
 
 $row1['goodname'] = goodname($row1['nickname']);
 
@@ -371,6 +371,7 @@ if (!empty($row1['site'])) {
 
 $smarty->assign('author', $row1);
 $smarty->assign('author_url', zxtunes_author_url($row1));
+$smarty->assign('author_photo_url', zxtunes_author_photo_url($row1));
 $smarty->assign('author_name_js', json_encode((string) $row1['nickname'], JSON_UNESCAPED_UNICODE));
 $f="";
 switch (strtolower($row1['country_en']))
@@ -491,10 +492,6 @@ $smarty->assign('last_update', date("d", $row1['last_update']) ." $m ".date("Y",
 
 
 
-}
-
-
-
 
 
 
@@ -607,6 +604,13 @@ foreach ($a as $track) {
 }
 $smarty->assign('playlist_js', json_encode($playlist_js, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 $smarty->assign('first_track_id', $n > 0 ? (int) $a[0]['id'] : 0);
+$smarty->assign('player_config_json', json_encode([
+	'autoplay' => (int) ($_REQUEST['play'] ?? 0),
+	'author_id' => (int) $id,
+	'author_name' => (string) $row1['nickname'],
+	'first_track' => $n > 0 ? (int) $a[0]['id'] : 0,
+	'playlist' => $playlist_js,
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
 
 
 
@@ -681,6 +685,7 @@ $smarty->assign('nmtrpl', $nmtrpl);
 
 $smarty->assign('id_fym', sprintf("%04d", $id));
 $smarty->assign('md', $md);
+$smarty->assign('body_class', 'page-author');
 
 if ($row1) {
 	$smarty->assign('schema_jsonld', zxtunes_author_schema($row1, $id, $db));

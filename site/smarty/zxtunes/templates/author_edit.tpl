@@ -130,6 +130,7 @@ function AddFile() {
 
 
 </script> 
+<script type="text/javascript" src="/js/swfobject.js"></script>
 <script type="text/javascript" src="/css/player6.js"></script> 
 {/literal}
 

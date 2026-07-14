@@ -25,6 +25,7 @@ foreach ($points as $p) {
 }
 
 $smarty->assign('body_class', 'page-authors-map');
+$smarty->assign('load_leaflet', true);
 $smarty->assign('map_points_json', json_encode($points, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
 $smarty->assign('map_cities', count($points));
 $smarty->assign('map_musicians', $total);
