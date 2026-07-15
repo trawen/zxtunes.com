@@ -243,7 +243,7 @@ function validateEmpty() {
 {section name=n loop=$playlist}
 
 <div class="zx-track-item">
-<div class="zx-track-row" id="s{$playlist[n].id}" onmouseover="ShowDetails({$playlist[n].id}, 'on')" onmouseout="ShowDetails({$playlist[n].id}, 'off')">
+<div class="zx-track-row" id="s{$playlist[n].id}" data-track-id="{$playlist[n].id}">
 
 <div class="zx-track-year">{if $playlist[n].print_year}{if $playlist[n].year}{$playlist[n].year}{else}n/a{/if}{/if}</div>
 
@@ -473,7 +473,9 @@ E-mail  <br> <input style="width: 150px"  name="email" type="text" size="16" max
 
 <script type="application/json" id="zxtunes-player-config">{$player_config_json}</script>
 <script defer type="text/javascript" src="/css/jquery.js"></script>
-<script type="module" src="/zxtune/js/author-player.js?v=7"></script>
+<script defer src="/zxtune/wothke/scriptprocessor_player.min.js?v=2"></script>
+<script defer src="/zxtune/js/author-player.js?v=22"></script>
+<script defer src="/zxtune/wothke/backend_zxtune.js?v=2"></script>
 {/if}
 
 {include file="right_strip.tpl"}

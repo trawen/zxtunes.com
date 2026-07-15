@@ -1,37 +1,3 @@
-import { AudioPlayer } from './audio-player.js?v=6';
-import { RenderService } from './render-service.js?v=6';
-
-function isMobilePlayback() {
-	if (typeof navigator === 'undefined') {
-		return false;
-	}
-	if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '')) {
-		return true;
-	}
-	return navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.platform || '');
-}
-
-const mobilePlayback = isMobilePlayback();
-const renderService = new RenderService(new URL('./pt2-worker.js?v=20260715d', import.meta.url), {
-	sampleRate: mobilePlayback ? 22050 : 44100,
-	channels: 2,
-});
-const audioPlayer = new AudioPlayer({
-	onEnded() {
-		playing = false;
-		updatePlayButton(true);
-		stopProgressTimer();
-		if (repeat && prepared) {
-			audioPlayer.seek(0);
-			void playCurrent(0);
-			return;
-		}
-		if (!repeat) {
-			NextTrack();
-		}
-	},
-});
-
 var pl = [];
 var cm = [];
 var id_comment = 0;
@@ -49,7 +15,6 @@ var timeElapsed = false;
 var shuffleOrder = [];
 var shufflePos = 0;
 var tracksById = {};
-var autoplayUnlockBound = false;
 var pendingAutoplayId = 0;
 var autoplay = 0;
 var author_id = 0;
@@ -60,6 +25,9 @@ var zxtuneBooted = false;
 var progressTimer = null;
 var engineReady = false;
 var engineInitPromise = null;
+var trackLoadInProgress = false;
+var loadingTrackId = 0;
+var moduleLoaded = false;
 
 function formatTime(seconds) {
 	seconds = Math.max(0, Math.floor(seconds));
@@ -75,60 +43,232 @@ function parseDisplayTime(str) {
 	return min * 60 + sec;
 }
 
+function getPlayer() {
+	try {
+		if (window.player) {
+			return window.player;
+		}
+	} catch (e) {}
+	return null;
+}
+
+function safePlayerCall(fn, fallback) {
+	try {
+		var p = getPlayer();
+		if (!p || !moduleLoaded) {
+			return fallback;
+		}
+		return fn(p);
+	} catch (e) {
+		return fallback;
+	}
+}
+
 function createSong(trackMeta) {
 	var fallbackSec = parseDisplayTime(trackMeta.time);
 	return {
 		getProgress() {
-			var snap = audioPlayer.getSnapshot();
-			var durationMs = prepared?.durationMs ?? snap.durationMs;
-			if (durationMs > 0) {
-				return Math.min(1, Math.max(0, snap.currentTimeMs / durationMs));
-			}
-			return 0;
+			return safePlayerCall(function (p) {
+				var max = p.getMaxPlaybackPosition();
+				if (max > 0) {
+					return Math.min(1, Math.max(0, p.getPlaybackPosition() / max));
+				}
+				if (fallbackSec > 0) {
+					return Math.min(1, p.getCurrentPlaytime() / fallbackSec);
+				}
+				return 0;
+			}, 0);
 		},
 		setProgress(k) {
-			if (!prepared) {
-				return;
-			}
-			if (k < 0) {
-				k = 0;
-			}
-			if (k > 0.98) {
-				k = 0.98;
-			}
-			audioPlayer.seek(prepared.durationMs * k);
+			safePlayerCall(function (p) {
+				if (k < 0) {
+					k = 0;
+				}
+				if (k > 0.98) {
+					k = 0.98;
+				}
+				var max = p.getMaxPlaybackPosition();
+				if (max > 0) {
+					p.seekPlaybackPosition(Math.round(max * k));
+					return;
+				}
+				if (fallbackSec > 0) {
+					p.seekPlaybackPosition(Math.round(k * fallbackSec * 1000));
+				}
+			}, null);
 		},
 		getTime() {
-			var snap = audioPlayer.getSnapshot();
-			var durationMs = prepared?.durationMs ?? snap.durationMs;
-			if (durationMs > 0) {
-				return formatTime((durationMs - snap.currentTimeMs) / 1000);
-			}
-			if (fallbackSec > 0) {
-				return formatTime(fallbackSec * (1 - this.getProgress()));
-			}
-			return '0:00';
+			return safePlayerCall(function (p) {
+				var max = p.getMaxPlaybackPosition();
+				if (max > 0) {
+					var leftMs = Math.max(0, max - p.getPlaybackPosition());
+					return formatTime(leftMs / 1000);
+				}
+				if (fallbackSec > 0) {
+					var progress = 0;
+					try {
+						progress = Math.min(1, p.getCurrentPlaytime() / fallbackSec);
+					} catch (e) {}
+					return formatTime(fallbackSec * (1 - progress));
+				}
+				return '0:00';
+			}, formatTime(fallbackSec));
 		},
 		getTimeElapsed() {
-			var snap = audioPlayer.getSnapshot();
-			if (snap.durationMs > 0 || prepared) {
-				return formatTime(snap.currentTimeMs / 1000);
-			}
-			if (fallbackSec > 0) {
-				return formatTime(fallbackSec * this.getProgress());
-			}
-			return '0:00';
+			return safePlayerCall(function (p) {
+				var max = p.getMaxPlaybackPosition();
+				if (max > 0) {
+					return formatTime(p.getPlaybackPosition() / 1000);
+				}
+				return formatTime(p.getCurrentPlaytime());
+			}, '0:00');
 		},
+	};
+}
+
+function onWothkeTrackEnd() {
+	playing = false;
+	updatePlayButton(true);
+	stopProgressTimer();
+	if (last_track) {
+		setRowState(last_track, false);
+	}
+	if (repeat && last_track) {
+		var p = getPlayer();
+		if (p) {
+			try {
+				p.seekPlaybackPosition(0);
+			} catch (e) {}
+			void unlockAudioForGesture().then(function () {
+				try {
+					p.play();
+				} catch (e2) {}
+				markPlaybackStarted(last_track);
+			});
+		}
+		return;
+	}
+	if (!repeat) {
+		NextTrack();
+	}
+}
+
+function onWothkeTrackReady() {
+	moduleLoaded = true;
+	var p = getPlayer();
+	if (p) {
+		try {
+			p.play();
+		} catch (e) {
+			console.error('zxtune play failed', e);
+			moduleLoaded = false;
+			return;
+		}
+	}
+	if (loadingTrackId) {
+		markPlaybackStarted(loadingTrackId);
+	}
+}
+
+function patchZxTuneBackendAdapter() {
+	if (typeof ZxTuneBackendAdapter === 'undefined' || ZxTuneBackendAdapter.prototype.__zxtunesPatched) {
+		return;
+	}
+	var proto = ZxTuneBackendAdapter.prototype;
+	proto.__zxtunesPatched = true;
+	// Replace existing MEMFS entries so a previous failed load cannot poison reloads.
+	var origRegister = proto.registerFileData;
+	proto.registerFileData = function (pathFilenameArray, data) {
+		var path = pathFilenameArray[0] || '/';
+		var name = pathFilenameArray[1];
+		var full = (path.slice(-1) === '/' ? path : path + '/') + name;
+		try {
+			this.Module.FS_unlink(full);
+		} catch (eUnlink) {}
+		return origRegister.call(this, pathFilenameArray, data);
 	};
 }
 
 function ensureEngineReady() {
 	if (engineReady) {
-		return Promise.resolve();
+		var readyPlayer = getPlayer();
+		if (readyPlayer && (typeof readyPlayer.isReady !== 'function' || readyPlayer.isReady())) {
+			return Promise.resolve();
+		}
+		engineReady = false;
 	}
 	if (!engineInitPromise) {
-		engineInitPromise = renderService.init().then(function () {
-			engineReady = true;
+		engineInitPromise = new Promise(function (resolve, reject) {
+			var settled = false;
+			function finishOk() {
+				if (settled) {
+					return;
+				}
+				settled = true;
+				engineReady = true;
+				resolve();
+			}
+			function finishFail(err) {
+				if (settled) {
+					return;
+				}
+				settled = true;
+				engineInitPromise = null;
+				engineReady = false;
+				reject(err);
+			}
+			function boot() {
+				if (typeof ScriptNodePlayer === 'undefined' || typeof ZxTuneBackendAdapter === 'undefined') {
+					finishFail(new Error('WOTHKE_LIBS_MISSING'));
+					return;
+				}
+				try {
+					patchZxTuneBackendAdapter();
+					// createInstance safely replaces any previous window.player.
+					ScriptNodePlayer.createInstance(
+						new ZxTuneBackendAdapter(),
+						'',
+						[],
+						false,
+						finishOk,
+						onWothkeTrackReady,
+						onWothkeTrackEnd,
+					);
+					// Empty preload usually calls onPlayerReady sync; keep a short
+					// fallback if adapter readiness is deferred.
+					if (!settled) {
+						var tries = 0;
+						var timer = window.setInterval(function () {
+							tries += 1;
+							var p = getPlayer();
+							if (p && typeof p.isReady === 'function' && p.isReady()) {
+								clearInterval(timer);
+								finishOk();
+							} else if (tries > 400) {
+								clearInterval(timer);
+								finishFail(new Error('PLAYER_INIT_TIMEOUT'));
+							}
+						}, 50);
+					}
+				} catch (e) {
+					finishFail(e);
+				}
+			}
+			if (typeof ScriptNodePlayer !== 'undefined' && typeof ZxTuneBackendAdapter !== 'undefined') {
+				boot();
+				return;
+			}
+			var tries = 0;
+			var timer = window.setInterval(function () {
+				tries += 1;
+				if (typeof ScriptNodePlayer !== 'undefined' && typeof ZxTuneBackendAdapter !== 'undefined') {
+					clearInterval(timer);
+					boot();
+				} else if (tries > 400) {
+					clearInterval(timer);
+					finishFail(new Error('WOTHKE_LIBS_TIMEOUT'));
+				}
+			}, 50);
 		});
 	}
 	return engineInitPromise;
@@ -235,6 +375,19 @@ function updateProgress() {
 	}
 }
 
+function updateProgressFallback(track) {
+	var left = document.getElementById('track_progress_left');
+	var right = document.getElementById('track_progress_right');
+	if (left && right) {
+		left.style.width = '0%';
+		right.style.width = '100%';
+	}
+	var trackTime = document.getElementById('track_time');
+	if (trackTime) {
+		trackTime.textContent = track && track.time ? track.time : '0:00';
+	}
+}
+
 function decodeEntities(text) {
 	if (!text) {
 		return '';
@@ -285,33 +438,57 @@ function updateTexts(track) {
 	updateTrackMarquee();
 }
 
-async function startPlayback(buffer, track) {
-	renderService.cancelActiveRequest();
-	audioPlayer.stopAndReset();
-	var rendered = await renderService.prepareTrack(String(track.id), track.filename, buffer.slice(0));
-	await audioPlayer.ensureContext();
-	audioPlayer.createAudioBuffer(rendered);
-	prepared = rendered;
-	song = createSong(track);
-	updateTexts(track);
-	updateProgress();
+function unlockAudioForGesture() {
+	try {
+		if (typeof setGlobalWebAudioCtx === 'function') {
+			setGlobalWebAudioCtx();
+		}
+		var ctx = window._gPlayerAudioCtx;
+		if (!ctx) {
+			return Promise.resolve();
+		}
+		try {
+			var beep = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+			var src = ctx.createBufferSource();
+			src.buffer = beep;
+			src.connect(ctx.destination);
+			src.start(0);
+		} catch (eBeep) {}
+		if (ctx.state === 'suspended') {
+			return ctx.resume().catch(function () {
+				return null;
+			});
+		}
+	} catch (e) {}
+	return Promise.resolve();
 }
 
 function pausePlayback() {
-	audioPlayer.pause();
+	var p = getPlayer();
+	if (p) {
+		try {
+			p.pause();
+		} catch (e) {}
+	}
 	playing = false;
 	updatePlayButton(true);
 	stopProgressTimer();
 }
 
 function stopEngine() {
-	renderService.cancelActiveRequest();
-	audioPlayer.stopAndReset();
+	stopProgressTimer();
+	moduleLoaded = false;
+	var p = getPlayer();
+	if (p) {
+		try {
+			p.pause();
+		} catch (e) {}
+	}
 	prepared = null;
 	song = null;
 	playing = false;
+	loadingTrackId = 0;
 	updatePlayButton(true);
-	stopProgressTimer();
 }
 
 function recordPlayStat(prevTrack) {
@@ -365,10 +542,66 @@ function getAutoplayTrackId() {
 	}
 }
 
-function unlockAudioForGesture() {
-	return audioPlayer.unlockFromGesture().catch(function () {
-		return null;
+function safeTuneFilename(track) {
+	var fn = String(track.filename || '').trim();
+	if (!fn) {
+		fn = 'track' + track.id + '.pt3';
+	}
+	fn = fn.replace(/[\\/]+/g, '_').replace(/[?#*<>:"|]/g, '_').replace(/\s+/g, '_');
+	if (fn.indexOf('.') < 0) {
+		fn += '.pt3';
+	}
+	return track.id + '_' + fn;
+}
+
+function isLikelyBinaryTune(buffer) {
+	if (!buffer || buffer.byteLength < 16) {
+		return false;
+	}
+	var head = new Uint8Array(buffer, 0, Math.min(64, buffer.byteLength));
+	var text = String.fromCharCode.apply(null, head.slice(0, 6)).toLowerCase();
+	return text !== '<html>' && text !== '<!doc';
+}
+
+function fetchTrackBuffer(track) {
+	return new Promise(function (resolve, reject) {
+		var req = new XMLHttpRequest();
+		req.open('GET', track.url, true);
+		req.responseType = 'arraybuffer';
+		req.onload = function () {
+			if (!isLikelyBinaryTune(req.response)) {
+				reject(new Error('TRACK_NOT_FOUND'));
+				return;
+			}
+			resolve(req.response);
+		};
+		req.onerror = function () {
+			reject(new Error('TRACK_XHR_FAILED'));
+		};
+		req.send(null);
 	});
+}
+
+function startLoadedTrack(trackId, cacheName, buffer) {
+	var player = getPlayer();
+	if (!player || typeof player.prepareTrackForPlayback !== 'function') {
+		throw new Error('PLAYER_NOT_READY');
+	}
+	loadingTrackId = trackId;
+
+	// Prefer prepareTrackForPlayback: loadMusicFromURL's cache-hit path never
+	// calls onSuccess, and a cache miss XHRs the virtual filename as a URL.
+	var data = buffer instanceof ArrayBuffer ? buffer : (buffer.buffer || buffer);
+	try {
+		var ready = player.prepareTrackForPlayback(cacheName, data, { track: 0 });
+		if (!ready && !(typeof player.isWaitingForFile === 'function' && player.isWaitingForFile())) {
+			throw new Error('TRACK_LOAD_FAILED');
+		}
+	} catch (e) {
+		console.error('zxtune prepareTrackForPlayback failed', e);
+		throw new Error('TRACK_LOAD_FAILED');
+	}
+	return Promise.resolve();
 }
 
 function markPlaybackStarted(trackId) {
@@ -378,55 +611,8 @@ function markPlaybackStarted(trackId) {
 		setRowState(trackId, true);
 	}
 	pendingAutoplayId = 0;
+	trackLoadInProgress = false;
 	startProgressTimer();
-}
-
-function markPlaybackWaiting(trackId) {
-	playing = false;
-	updatePlayButton(true);
-	if (trackId) {
-		setRowState(trackId, false);
-	}
-	pendingAutoplayId = trackId;
-	stopProgressTimer();
-}
-
-function bindAutoplayUnlock(retryFn) {
-	if (autoplayUnlockBound) {
-		return;
-	}
-	autoplayUnlockBound = true;
-	var unlock = function () {
-		document.removeEventListener('pointerdown', unlock, true);
-		document.removeEventListener('touchend', unlock, true);
-		document.removeEventListener('keydown', unlock, true);
-		autoplayUnlockBound = false;
-		void unlockAudioForGesture().then(function () {
-			retryFn();
-		});
-	};
-	document.addEventListener('pointerdown', unlock, true);
-	document.addEventListener('touchend', unlock, true);
-	document.addEventListener('keydown', unlock, true);
-}
-
-async function ensureAudioRunning(done, onBlocked) {
-	try {
-		await audioPlayer.ensureContext();
-		if (audioPlayer.audioContext && audioPlayer.audioContext.state === 'running') {
-			await done();
-			return;
-		}
-		if (onBlocked) {
-			onBlocked();
-		}
-		bindAutoplayUnlock(done);
-	} catch (e) {
-		if (onBlocked) {
-			onBlocked();
-		}
-		bindAutoplayUnlock(done);
-	}
 }
 
 function beginTrackLoad(trackId, resumeOnly) {
@@ -435,74 +621,64 @@ function beginTrackLoad(trackId, resumeOnly) {
 		return;
 	}
 
-	var onBlocked = function () {
-		markPlaybackWaiting(trackId);
-	};
-
-	if (resumeOnly && prepared && song) {
-		void ensureAudioRunning(async function () {
-			await playCurrent();
-			markPlaybackStarted(trackId);
-		}, onBlocked);
+	if (resumeOnly && prepared) {
+		var resumePlayer = getPlayer();
+		if (resumePlayer) {
+			void unlockAudioForGesture().then(function () {
+				try {
+					resumePlayer.resume();
+				} catch (e) {
+					try {
+						resumePlayer.play();
+					} catch (e2) {}
+				}
+				markPlaybackStarted(trackId);
+			});
+		}
 		return;
 	}
 
-	var req = new XMLHttpRequest();
-	req.open('GET', track.url, true);
-	req.responseType = 'arraybuffer';
-	req.onload = function () {
-		if (!req.response) {
-			alert('Sorry, track not found. :(');
-			stopEngine();
-			setRowState(trackId, false);
-			return;
-		}
-		void (async function () {
-			try {
-				await startPlayback(req.response, track);
-				await audioPlayer.ensureContext();
-				if (!audioPlayer.audioContext || audioPlayer.audioContext.state !== 'running') {
-					onBlocked();
-					bindAutoplayUnlock(async function () {
-						await playCurrent(0);
-						markPlaybackStarted(trackId);
-					});
-					return;
-				}
-				await playCurrent(0);
-				markPlaybackStarted(trackId);
-			} catch (e) {
-				console.error('zxtune playback failed', e);
-				alert('Sorry, this track cannot be played in the browser.');
-				stopEngine();
-				setRowState(trackId, false);
-			}
-		})();
-	};
-	req.onerror = function () {
-		alert('Sorry, track not found. :(');
+	if (trackLoadInProgress) {
+		return;
+	}
+	trackLoadInProgress = true;
+
+	void unlockAudioForGesture().then(function () {
+		moduleLoaded = false;
+		song = createSong(track);
+		updateTexts(track);
+		prepared = { id: track.id };
+		updateProgressFallback(track);
+
+		var cacheName = safeTuneFilename(track);
+		return fetchTrackBuffer(track).then(function (buffer) {
+			return startLoadedTrack(trackId, cacheName, buffer);
+		});
+	}).catch(function (e) {
+		console.error('zxtune playback failed', e);
+		alert(e && e.message === 'TRACK_NOT_FOUND'
+			? 'Sorry, track not found. :('
+			: 'Sorry, this track cannot be played in the browser.');
 		stopEngine();
 		setRowState(trackId, false);
-	};
-	req.send(null);
+		trackLoadInProgress = false;
+	});
 }
 
-async function playCurrent(offsetMs) {
-	if (!prepared) {
+function playCurrent() {
+	var p = getPlayer();
+	if (!p || !prepared) {
 		return;
 	}
-	await audioPlayer.ensureContext();
-	if (audioPlayer.audioContext && audioPlayer.audioContext.state === 'suspended') {
-		await audioPlayer.audioContext.resume();
-	}
-	var startMs = typeof offsetMs === 'number'
-		? offsetMs
-		: audioPlayer.getSnapshot().currentTimeMs;
-	await audioPlayer.playFromOffset(startMs);
-	playing = true;
-	updatePlayButton(false);
-	startProgressTimer();
-	updateProgress();
+	void unlockAudioForGesture().then(function () {
+		try {
+			p.play();
+		} catch (e) {}
+		playing = true;
+		updatePlayButton(false);
+		startProgressTimer();
+		updateProgress();
+	});
 }
 
 function loadAndPlay(trackId, resumeOnly) {
@@ -513,6 +689,10 @@ function loadAndPlay(trackId, resumeOnly) {
 	}
 
 	void ensureEngineReady().then(function () {
+		if (!getPlayer()) {
+			throw new Error('PLAYER_NOT_READY');
+		}
+
 		if (!resumeOnly && last_track && last_track != trackId) {
 			recordPlayStat(last_track);
 			setRowState(last_track, false);
@@ -526,13 +706,8 @@ function loadAndPlay(trackId, resumeOnly) {
 		}
 		highlightTrack(trackId);
 
-		if (resumeOnly && prepared && song) {
-			void ensureAudioRunning(async function () {
-				await playCurrent();
-				markPlaybackStarted(trackId);
-			}, function () {
-				markPlaybackWaiting(trackId);
-			});
+		if (resumeOnly && prepared) {
+			beginTrackLoad(trackId, true);
 			return;
 		}
 
@@ -541,17 +716,21 @@ function loadAndPlay(trackId, resumeOnly) {
 		}
 
 		beginTrackLoad(trackId, resumeOnly);
+	}).catch(function (e) {
+		console.error('zxtune playback failed', e);
+		alert('Sorry, this track cannot be played in the browser.');
+		trackLoadInProgress = false;
 	});
 }
 
 function PlayB(trackId) {
 	trackId = parseInt(trackId, 10);
+	void unlockAudioForGesture();
 	if (trackId == last_track && playing) {
 		pausePlayback();
 		setRowState(trackId, false);
 		return;
 	}
-	void unlockAudioForGesture();
 	if (trackId == last_track && prepared && !playing) {
 		loadAndPlay(trackId, true);
 		return;
@@ -560,13 +739,13 @@ function PlayB(trackId) {
 }
 
 function togglePlay() {
+	void unlockAudioForGesture();
 	if (playing) {
 		pausePlayback();
 		if (last_track) {
 			setRowState(last_track, false);
 		}
 	} else {
-		void unlockAudioForGesture();
 		if (last_track && prepared) {
 			loadAndPlay(last_track, true);
 		} else if (pendingAutoplayId || last_track) {
@@ -658,7 +837,7 @@ function changeProgress(event) {
 	}
 	song.setProgress(k);
 	if (playing) {
-		void playCurrent();
+		playCurrent();
 	} else {
 		updateProgress();
 	}
@@ -769,6 +948,38 @@ function readPlayerConfig() {
 	}
 }
 
+function bindPlaylistUi() {
+	var list = document.getElementById('tb');
+	if (!list || list.getAttribute('data-zx-bound')) {
+		return;
+	}
+	list.setAttribute('data-zx-bound', '1');
+	list.addEventListener('mouseover', function (event) {
+		var row = event.target.closest ? event.target.closest('.zx-track-row') : null;
+		if (!row || !list.contains(row)) {
+			return;
+		}
+		var id = row.getAttribute('data-track-id');
+		if (id) {
+			ShowDetails(id, 'on');
+		}
+	});
+	list.addEventListener('mouseout', function (event) {
+		var row = event.target.closest ? event.target.closest('.zx-track-row') : null;
+		if (!row || !list.contains(row)) {
+			return;
+		}
+		var related = event.relatedTarget;
+		if (related && row.contains(related)) {
+			return;
+		}
+		var id = row.getAttribute('data-track-id');
+		if (id) {
+			ShowDetails(id, 'off');
+		}
+	});
+}
+
 function bootAyPlayer() {
 	if (zxtuneBooted) {
 		return;
@@ -776,21 +987,24 @@ function bootAyPlayer() {
 	zxtuneBooted = true;
 	readPlayerConfig();
 	buildTrackIndex();
+	bindPlaylistUi();
 	if (window.addEventListener) {
 		window.addEventListener('resize', updateTrackMarquee);
-		document.addEventListener('touchstart', unlockAudioForGesture, { capture: true, passive: true });
-		document.addEventListener('pointerdown', unlockAudioForGesture, { capture: true });
 	}
-	void ensureEngineReady().then(function () {
-		var trackId = getAutoplayTrackId();
-		if (trackId > 0) {
-			PlayB(trackId);
-		} else {
-			updateTrackMarquee();
+
+	var trackId = getAutoplayTrackId();
+	if (trackId > 0) {
+		pendingAutoplayId = trackId;
+		last_track = trackId;
+		showPlayerBar();
+		highlightTrack(trackId);
+		var track = getTrack(trackId);
+		if (track) {
+			song = createSong(track);
+			updateTexts(track);
 		}
-	}).catch(function (e) {
-		console.error('zxtune init failed', e);
-	});
+	}
+	updateTrackMarquee();
 }
 
 function initAyPlayer() {
