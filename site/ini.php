@@ -26,6 +26,7 @@ require_once __DIR__ . '/includes/session_auth.php';
 
 require_once __DIR__ . '/includes/sql_helpers.php';
 require_once __DIR__ . '/includes/author_urls.php';
+require_once __DIR__ . '/includes/tune_files.php';
 
 
 

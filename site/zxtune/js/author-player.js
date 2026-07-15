@@ -582,7 +582,7 @@ function fetchTrackBuffer(track) {
 	});
 }
 
-function startLoadedTrack(trackId, cacheName, buffer) {
+function startLoadedTrack(trackId, cacheName, buffer, track) {
 	var player = getPlayer();
 	if (!player || typeof player.prepareTrackForPlayback !== 'function') {
 		throw new Error('PLAYER_NOT_READY');
@@ -592,8 +592,9 @@ function startLoadedTrack(trackId, cacheName, buffer) {
 	// Prefer prepareTrackForPlayback: loadMusicFromURL's cache-hit path never
 	// calls onSuccess, and a cache miss XHRs the virtual filename as a URL.
 	var data = buffer instanceof ArrayBuffer ? buffer : (buffer.buffer || buffer);
+	var subsong = track && typeof track.subsong === 'number' ? track.subsong : 0;
 	try {
-		var ready = player.prepareTrackForPlayback(cacheName, data, { track: 0 });
+		var ready = player.prepareTrackForPlayback(cacheName, data, { track: subsong });
 		if (!ready && !(typeof player.isWaitingForFile === 'function' && player.isWaitingForFile())) {
 			throw new Error('TRACK_LOAD_FAILED');
 		}
@@ -652,7 +653,7 @@ function beginTrackLoad(trackId, resumeOnly) {
 
 		var cacheName = safeTuneFilename(track);
 		return fetchTrackBuffer(track).then(function (buffer) {
-			return startLoadedTrack(trackId, cacheName, buffer);
+			return startLoadedTrack(trackId, cacheName, buffer, track);
 		});
 	}).catch(function (e) {
 		console.error('zxtune playback failed', e);

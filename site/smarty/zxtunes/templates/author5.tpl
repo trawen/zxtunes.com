@@ -248,13 +248,7 @@ function validateEmpty() {
 <div class="zx-track-year">{if $playlist[n].print_year}{if $playlist[n].year}{$playlist[n].year}{else}n/a{/if}{/if}</div>
 
 <div class="zx-track-play">
-{if $playlist[n].fym eq 0}
 <div id="m{$playlist[n].id}" class="play" onclick="PlayB('{$playlist[n].id}')"></div>
-{elseif $playlist[n].fym eq 1}
-<div class="fym_wait"></div>
-{else}
-<div class="fym_none"></div>
-{/if}
 
 <div id="n{$playlist[n].id}" style="display: none">{$playlist[n].next_id}</div>
 <div id="p{$playlist[n].id}" style="display: none">{$playlist[n].prev_id}</div>
@@ -474,7 +468,7 @@ E-mail  <br> <input style="width: 150px"  name="email" type="text" size="16" max
 <script type="application/json" id="zxtunes-player-config">{$player_config_json}</script>
 <script defer type="text/javascript" src="/css/jquery.js"></script>
 <script defer src="/zxtune/wothke/scriptprocessor_player.min.js?v=2"></script>
-<script defer src="/zxtune/js/author-player.js?v=22"></script>
+<script defer src="/zxtune/js/author-player.js?v=23"></script>
 <script defer src="/zxtune/wothke/backend_zxtune.js?v=2"></script>
 {/if}
 

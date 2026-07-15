@@ -605,12 +605,18 @@ $smarty->assign('playlist', $a);
 
 $playlist_js = [];
 foreach ($a as $track) {
+	$source = zxtunes_resolve_tune_source(
+		(int) $track['id'],
+		(string) $track['filename'],
+		(int) $id
+	);
 	$playlist_js[] = [
 		'id' => (int) $track['id'],
-		'url' => '/downloads.php?id=' . (int) $track['id'],
+		'url' => '/downloads.php?id=' . (int) $source['source_id'],
 		'filename' => decode_text($track['filename']),
 		'title' => decode_text($track['name_raw']),
 		'time' => $track['time'],
+		'subsong' => (int) $source['subsong'],
 		'next_id' => (int) $track['next_id'],
 		'prev_id' => (int) $track['prev_id'],
 	];

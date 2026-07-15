@@ -88,6 +88,17 @@ elseif ($md === 'podcast') {
 else {
 
 	$row = db_fetch_one('SELECT filename FROM muzx_songs WHERE id=? LIMIT 1', 'i', [$id]);
+	if (!$row) {
+		header('HTTP/1.0 404 Not Found');
+		exit;
+	}
+
+	$source = zxtunes_resolve_tune_source($id, (string) ($row['filename'] ?? ''));
+	if (!empty($source['missing'])) {
+		header('HTTP/1.0 404 Not Found');
+		exit;
+	}
+
 	db_execute('UPDATE muzx_songs SET downloads=downloads+1 WHERE id=? LIMIT 1', 'i', [$id]);
-	send_file(sprintf('tunes/%08X', $id), $row['filename'] ?? 'tune');
+	send_file($source['path'], $row['filename'] ?? 'tune');
 }
