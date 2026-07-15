@@ -445,8 +445,8 @@ E-mail  <br> <input style="width: 150px"  name="email" type="text" size="16" max
 </div>
 
 {if $md eq 1}
-<link rel="preload" href="/css/ay_player.css?v=26" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/css/ay_player.css?v=26"></noscript>
+<link rel="preload" href="/css/ay_player.css?v=27" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/css/ay_player.css?v=27"></noscript>
 {literal}
 <div id="zx_ay_player_wrap" class="zx-ay-player-wrap">
 <div class="zx-ay-player-inner">
@@ -473,10 +473,7 @@ E-mail  <br> <input style="width: 150px"  name="email" type="text" size="16" max
 
 <script type="application/json" id="zxtunes-player-config">{$player_config_json}</script>
 <script defer type="text/javascript" src="/css/jquery.js"></script>
-<script defer type="text/javascript" src="/js/ay/pako_inflate.min.js"></script>
-<script defer type="text/javascript" src="/js/ay/ayumi.js"></script>
-<script defer type="text/javascript" src="/js/ay/fym.js"></script>
-<script defer type="text/javascript" src="/css/ay_player.js?v=10"></script>
+<script type="module" src="/zxtune/js/author-player.js?v=7"></script>
 {/if}
 
 {include file="right_strip.tpl"}

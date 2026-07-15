@@ -1,4 +1,4 @@
-// ZXTunes HTML5 AY/FYM player (ayumi + fym.js, ym.mmcm.ru based)
+// ZXTunes author page player (ZXTune WASM + original tune files)
 
 var pl = [];
 var cm = [];
@@ -8,16 +8,12 @@ var last_track = 0;
 var id_thanks = 0;
 var tht = ["Thank you!", "Speccy rulez!", "Spectrum alive!", "8-bit never die!"];
 
-var ayumi, ayumi2, song;
-var isrCounter, isrStep;
+var song;
 var audioContext, audioNode;
-var isTurbo = false;
 var playing = false;
 var repeat = false;
 var shuffle = false;
 var timeElapsed = false;
-var isYM = true;
-var chipMode = 0;
 var shuffleOrder = [];
 var shufflePos = 0;
 var tracksById = {};
@@ -28,6 +24,7 @@ var author_id = 0;
 var author_name = "";
 var first_track = 0;
 var zxtunesPlaylist = [];
+var zxtuneBooted = false;
 
 function buildTrackIndex() {
 	tracksById = {};
@@ -111,39 +108,6 @@ function focusPlaylistTrack(trackId) {
 	}
 }
 
-function updatePan() {
-	var a = 0.25, b = 0.5, c = 0.75;
-	var mode = chipMode % 6;
-	var table = [[a, b, c], [a, c, b], [b, a, c], [b, c, a], [c, a, b], [c, b, a]];
-	if (ayumi) {
-		ayumi.setPan(0, table[mode][0], 0);
-		ayumi.setPan(1, table[mode][1], 0);
-		ayumi.setPan(2, table[mode][2], 0);
-	}
-	if (ayumi2) {
-		ayumi2.setPan(0, table[mode][0], 0);
-		ayumi2.setPan(1, table[mode][1], 0);
-		ayumi2.setPan(2, table[mode][2], 0);
-	}
-}
-
-function updateState(renderer, r) {
-	renderer.setTone(0, (r[1] << 8) | r[0]);
-	renderer.setTone(1, (r[3] << 8) | r[2]);
-	renderer.setTone(2, (r[5] << 8) | r[4]);
-	renderer.setNoise(r[6]);
-	renderer.setMixer(0, r[7] & 1, (r[7] >> 3) & 1, r[8] >> 4);
-	renderer.setMixer(1, (r[7] >> 1) & 1, (r[7] >> 4) & 1, r[9] >> 4);
-	renderer.setMixer(2, (r[7] >> 2) & 1, (r[7] >> 5) & 1, r[10] >> 4);
-	renderer.setVolume(0, r[8] & 0xf);
-	renderer.setVolume(1, r[9] & 0xf);
-	renderer.setVolume(2, r[10] & 0xf);
-	renderer.setEnvelope((r[12] << 8) | r[11]);
-	if (r[13] != 0xff) {
-		renderer.setEnvelopeShape(r[13]);
-	}
-}
-
 function updateProgress() {
 	if (!song) {
 		return;
@@ -183,7 +147,6 @@ function updateTrackMarquee() {
 	}
 	name.classList.remove("track_name--scroll");
 	name.style.removeProperty("--marquee-shift");
-	// Measure natural text width against the clip container.
 	name.style.display = "inline-block";
 	name.style.maxWidth = "none";
 	name.style.width = "max-content";
@@ -215,51 +178,26 @@ function updateTexts(track) {
 }
 
 function fillBuffer(e) {
-	var finished = false;
+	if (!playing || !song) {
+		return;
+	}
 	var left = e.outputBuffer.getChannelData(0);
 	var right = e.outputBuffer.getChannelData(1);
-	for (var i = 0; i < left.length; i++) {
-		isrCounter += isrStep;
-		if (isrCounter >= 1) {
-			var regs = song.getNextFrame();
-			updateState(ayumi, regs[0]);
-			if (isTurbo) {
-				updateState(ayumi2, regs[1]);
-			}
-			isrCounter--;
-			finished |= regs[2];
-			updateProgress();
-		}
-		ayumi.process();
-		ayumi.removeDC();
-		if (isTurbo) {
-			ayumi2.process();
-			ayumi2.removeDC();
-			left[i] = (ayumi.left + ayumi2.left) * 0.5;
-			right[i] = (ayumi.right + ayumi2.right) * 0.5;
-		} else {
-			left[i] = ayumi.left;
-			right[i] = ayumi.right;
-		}
-	}
-	if (!repeat && finished) {
+	var status = ZxtuneEngine.render(left, right);
+	updateProgress();
+	if (!repeat && status === 1) {
 		NextTrack();
 	}
 }
 
-function startPlayback(buffer, fileName, track) {
-	song = new FYMReader(buffer, fileName);
-	var sampleRate = audioContext.sampleRate;
-	isrStep = song.getFrameRate() / sampleRate;
-	isrCounter = 0;
-	ayumi = new Ayumi();
-	ayumi.configure(isYM, song.getClockRate(), sampleRate);
-	isTurbo = song.getTurbo();
-	if (isTurbo) {
-		ayumi2 = new Ayumi();
-		ayumi2.configure(isYM, song.getClockRate(), sampleRate);
+function startPlayback(buffer, track) {
+	ZxtuneEngine.teardown();
+	ZxtuneEngine.registerFile(track.filename, buffer);
+	var ret = ZxtuneEngine.init(audioContext.sampleRate, track.filename);
+	if (ret !== 0) {
+		throw new Error("ZXTune init failed: " + ret);
 	}
-	updatePan();
+	song = ZxtuneEngine.createSong(track.time);
 	audioNode.connect(audioContext.destination);
 	updateTexts(track);
 	updateProgress();
@@ -288,9 +226,8 @@ function pausePlayback() {
 
 function stopEngine() {
 	pausePlayback();
+	ZxtuneEngine.teardown();
 	song = null;
-	ayumi = null;
-	ayumi2 = null;
 }
 
 function recordPlayStat(prevTrack) {
@@ -422,12 +359,22 @@ function beginTrackLoad(trackId, resumeOnly) {
 	req.open("GET", track.url, true);
 	req.responseType = "arraybuffer";
 	req.onload = function() {
-		if (req.response) {
-			ensureAudioRunning(function() {
-				startPlayback(req.response, track.filename + ".fym", track);
-				markPlaybackStarted(trackId);
-			}, onBlocked);
+		if (!req.response) {
+			alert("Sorry, track not found. :(");
+			stopEngine();
+			setRowState(trackId, false);
+			return;
 		}
+		ensureAudioRunning(function() {
+			try {
+				startPlayback(req.response, track);
+				markPlaybackStarted(trackId);
+			} catch (e) {
+				alert("Sorry, this track cannot be played in the browser.");
+				stopEngine();
+				setRowState(trackId, false);
+			}
+		}, onBlocked);
 	};
 	req.onerror = function() {
 		alert("Sorry, track not found. :(");
@@ -441,6 +388,13 @@ function loadAndPlay(trackId, resumeOnly) {
 	var track = getTrack(trackId);
 	if (!track) {
 		alert("Sorry, track not found.");
+		return;
+	}
+
+	if (!ZxtuneEngine.isReady()) {
+		ZxtuneEngine.whenReady(function() {
+			loadAndPlay(trackId, resumeOnly);
+		});
 		return;
 	}
 
@@ -477,7 +431,7 @@ function loadAndPlay(trackId, resumeOnly) {
 		disconnectAudio();
 	}
 
-	audioContext = new AudioContextHandle();
+	audioContext = new AudioContextHandle({ sampleRate: 44100 });
 	audioNode = audioContext.createScriptProcessor(16384, 0, 2) || audioContext.createJavaScriptNode(16384, 0, 2);
 	audioNode.onaudioprocess = fillBuffer;
 	beginTrackLoad(trackId, resumeOnly);
@@ -592,6 +546,7 @@ function changeProgress(event) {
 		k = 0.98;
 	}
 	song.setProgress(k);
+	ZxtuneEngine.resetChunk();
 	updateProgress();
 }
 
@@ -700,18 +655,28 @@ function readPlayerConfig() {
 	}
 }
 
-function initAyPlayer() {
+function bootAyPlayer() {
+	if (zxtuneBooted) {
+		return;
+	}
+	zxtuneBooted = true;
 	readPlayerConfig();
 	buildTrackIndex();
 	if (window.addEventListener) {
 		window.addEventListener("resize", updateTrackMarquee);
 	}
-	var trackId = getAutoplayTrackId();
-	if (trackId > 0) {
-		PlayB(trackId);
-	} else {
-		updateTrackMarquee();
-	}
+	ZxtuneEngine.whenReady(function() {
+		var trackId = getAutoplayTrackId();
+		if (trackId > 0) {
+			PlayB(trackId);
+		} else {
+			updateTrackMarquee();
+		}
+	});
+}
+
+function initAyPlayer() {
+	bootAyPlayer();
 }
 
 if (typeof $ !== "undefined") {

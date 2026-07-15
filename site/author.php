@@ -607,7 +607,7 @@ $playlist_js = [];
 foreach ($a as $track) {
 	$playlist_js[] = [
 		'id' => (int) $track['id'],
-		'url' => '/fym2/' . $id . '/' . $track['id'] . '.fym',
+		'url' => '/downloads.php?id=' . (int) $track['id'],
 		'filename' => decode_text($track['filename']),
 		'title' => decode_text($track['name_raw']),
 		'time' => $track['time'],

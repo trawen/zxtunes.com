@@ -197,7 +197,7 @@ DIV.tpmenu A {
 .tpmenu__aside {
 	display: flex;
 	align-items: center;
-	margin-left: 0;
+	margin-left: auto;
 	flex: 0 0 auto;
 }
 
@@ -299,6 +299,15 @@ DIV.tpmenu .mobile-nav a.active {
 	flex: 0 0 12px;
 	width: 12px;
 	align-self: flex-end;
+}
+
+.site-header {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	background-color: #fff;
+	margin-bottom: 32px;
+	box-shadow: 0 8px 12px 4px #fff;
 }
 
 .site-header__sub {
@@ -1669,10 +1678,6 @@ div.soc_share {
 
 @media (max-width: 768px) {
 	.site-header {
-		position: sticky;
-		top: 0;
-		z-index: 100;
-		background-color: #fff;
 		padding-bottom: 4px;
 	}
 

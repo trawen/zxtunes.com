@@ -91,7 +91,7 @@ DIV.tpmenu A:hover {
 .tpmenu__aside {
 	display: flex;
 	align-items: center;
-	margin-left: 0;
+	margin-left: auto;
 	flex: 0 0 auto;
 }
 .tpmenu__burger {
@@ -127,6 +127,14 @@ DIV.tpmenu A:hover {
 	flex: 0 0 12px;
 	width: 12px;
 	align-self: flex-end;
+}
+.site-header {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	background-color: #fff;
+	margin-bottom: 32px;
+	box-shadow: 0 8px 12px 4px #fff;
 }
 .site-header__sub {
 	display: flex;
@@ -230,10 +238,6 @@ DIV.tpmenu A:hover {
 }
 @media (max-width: 768px) {
 	.site-header {
-		position: sticky;
-		top: 0;
-		z-index: 100;
-		background-color: #fff;
 		padding-bottom: 4px;
 	}
 	.tpmenu {
